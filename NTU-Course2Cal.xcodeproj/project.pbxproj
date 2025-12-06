@@ -6,13 +6,33 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0A17D2332EE476DA000444EE /* DotLottie in Frameworks */ = {isa = PBXBuildFile; productRef = 0A17D2322EE476DA000444EE /* DotLottie */; };
+		0A17D2362EE476E8000444EE /* SwiftyGif in Frameworks */ = {isa = PBXBuildFile; productRef = 0A17D2352EE476E8000444EE /* SwiftyGif */; };
+		0A17D23B2EE476F6000444EE /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 0A17D23A2EE476F6000444EE /* GoogleSignIn */; };
+		0A17D23D2EE476F6000444EE /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 0A17D23C2EE476F6000444EE /* GoogleSignInSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		0A17D2092EE47609000444EE /* NTU-Course2Cal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "NTU-Course2Cal.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0A17D23F2EE478CC000444EE /* Exceptions for "NTU-Course2Cal" folder in "NTU-Course2Cal" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0A17D2082EE47609000444EE /* NTU-Course2Cal */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0A17D20B2EE47609000444EE /* NTU-Course2Cal */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0A17D23F2EE478CC000444EE /* Exceptions for "NTU-Course2Cal" folder in "NTU-Course2Cal" target */,
+			);
 			path = "NTU-Course2Cal";
 			sourceTree = "<group>";
 		};
@@ -23,6 +43,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A17D23D2EE476F6000444EE /* GoogleSignInSwift in Frameworks */,
+				0A17D2332EE476DA000444EE /* DotLottie in Frameworks */,
+				0A17D23B2EE476F6000444EE /* GoogleSignIn in Frameworks */,
+				0A17D2362EE476E8000444EE /* SwiftyGif in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +89,10 @@
 			);
 			name = "NTU-Course2Cal";
 			packageProductDependencies = (
+				0A17D2322EE476DA000444EE /* DotLottie */,
+				0A17D2352EE476E8000444EE /* SwiftyGif */,
+				0A17D23A2EE476F6000444EE /* GoogleSignIn */,
+				0A17D23C2EE476F6000444EE /* GoogleSignInSwift */,
 			);
 			productName = "NTU-Course2Cal";
 			productReference = 0A17D2092EE47609000444EE /* NTU-Course2Cal.app */;
@@ -82,6 +110,7 @@
 				TargetAttributes = {
 					0A17D2082EE47609000444EE = {
 						CreatedOnToolsVersion = 26.1.1;
+						LastSwiftMigration = 2610;
 					};
 				};
 			};
@@ -94,6 +123,11 @@
 			);
 			mainGroup = 0A17D2002EE47609000444EE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0A17D2312EE476DA000444EE /* XCRemoteSwiftPackageReference "dotlottie-ios" */,
+				0A17D2342EE476E8000444EE /* XCRemoteSwiftPackageReference "SwiftyGif" */,
+				0A17D2392EE476F6000444EE /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0A17D20A2EE47609000444EE /* Products */;
 			projectDirPath = "";
@@ -251,16 +285,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 9C34NS62AH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "NTU-Course2Cal/Info.plist";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "App 需要存取您的行事曆以匯入課程資訊。";
+				INFOPLIST_KEY_NSRemindersUsageDescription = "App 需要新增提醒事件。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -269,12 +305,17 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Brian.NTU-Course2Cal";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -283,16 +324,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 9C34NS62AH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "NTU-Course2Cal/Info.plist";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "App 需要存取您的行事曆以匯入課程資訊。";
+				INFOPLIST_KEY_NSRemindersUsageDescription = "App 需要新增提醒事件。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -301,12 +344,16 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Brian.NTU-Course2Cal";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -332,6 +379,56 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0A17D2312EE476DA000444EE /* XCRemoteSwiftPackageReference "dotlottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/LottieFiles/dotlottie-ios";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		0A17D2342EE476E8000444EE /* XCRemoteSwiftPackageReference "SwiftyGif" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kirualex/SwiftyGif.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.4.5;
+			};
+		};
+		0A17D2392EE476F6000444EE /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0A17D2322EE476DA000444EE /* DotLottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A17D2312EE476DA000444EE /* XCRemoteSwiftPackageReference "dotlottie-ios" */;
+			productName = DotLottie;
+		};
+		0A17D2352EE476E8000444EE /* SwiftyGif */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A17D2342EE476E8000444EE /* XCRemoteSwiftPackageReference "SwiftyGif" */;
+			productName = SwiftyGif;
+		};
+		0A17D23A2EE476F6000444EE /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A17D2392EE476F6000444EE /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		0A17D23C2EE476F6000444EE /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A17D2392EE476F6000444EE /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0A17D2012EE47609000444EE /* Project object */;
 }
