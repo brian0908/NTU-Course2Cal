@@ -19,14 +19,13 @@ struct InputSheetView: View {
 	@State private var showConfetti = false
 	@State private var isParsing = false
 	@State private var showParseError = false
-	@State private var showNeedSemesterAlert = false   // 如果還沒有的話要加這個
+	@State private var showNeedSemesterAlert = false
 
 	var body: some View {
 		ZStack {
 			NavigationStack {
 				Form {
 					Section("學期管理") {
-						// 顯示目前學期
 						if let currentId = viewModel.currentSemesterId,
 						   let sem = viewModel.semesters.first(where: { $0.id == currentId }) {
 							Text("目前學期：\(sem.name)")
@@ -39,7 +38,6 @@ struct InputSheetView: View {
 								.foregroundColor(.secondary)
 						}
 						
-						// 列出所有 active 學期讓使用者切換
 						if !viewModel.activeSemesters.isEmpty {
 							Picker("切換學期", selection: Binding(
 								get: { viewModel.currentSemesterId },
@@ -128,8 +126,6 @@ struct InputSheetView: View {
 							}
 						}
 
-						// 這兩個放在「框框外面」，但同一個 Section 裡
-
 						// 前往臺大課程網
 						Button {
 							if let url = URL(string: "https://course.ntu.edu.tw/result/final/list") {
@@ -217,7 +213,6 @@ struct InputSheetView: View {
 		}
 	}
 
-	// startParse() 與其它函式保持不變
 	
 	// MARK: - 解析流程
 	private func startParse() {

@@ -15,7 +15,7 @@ struct CourseGroup: Identifiable {
 	let rawTime: String
 	let credits: Int?
 	let notes: String
-	let indices: [Int]      // 這個 group 底下有哪些 Course 的 index
+	let indices: [Int]
 }
 
 struct MyCoursesView: View {
@@ -112,7 +112,7 @@ struct CourseGroupCard: View {
 	let group: CourseGroup
 	@Binding var isSelected: Bool
 	@Binding var isExpanded: Bool
-	var showsToggle: Bool = true        // 新增
+	var showsToggle: Bool = true
 
 	var body: some View {
 		VStack(alignment: .leading, spacing: 8) {
@@ -153,13 +153,13 @@ struct CourseGroupCard: View {
 						.background(Color(red: 229/255, green: 236/255, blue: 248/255))
 						.cornerRadius(5)
 					
-					if showsToggle {          // 只有需要時才顯示 toggle
+					if showsToggle {
 						VStack(spacing: 3) {
 
 							Toggle("", isOn: $isSelected)
 								.labelsHidden()
 								.scaleEffect(0.8)
-								.onTapGesture { }   // 避免事件往外傳
+								.onTapGesture { }
 							Text("匯出")
 								.font(.caption)
 								.foregroundColor(.ntuBlue)
@@ -288,8 +288,6 @@ struct CourseGroupRow: View {
 }
 
 // 將 rawTime 轉成多行時間說明
-// 例如 "一 1,2 / 三 5,6"
-// -> ["一 1 ~ 2 節（08:10 ~ 10:00）", "三 5 ~ 6 節（12:20 ~ 13:50）"]
 private func timeLines(for rawTime: String) -> [String] {
 	let segments = rawTime
 		.components(separatedBy: "/")
@@ -304,8 +302,8 @@ private func formatTimeSegment(_ segment: String) -> String? {
 	let parts = segment.components(separatedBy: .whitespaces)
 	guard parts.count >= 2 else { return nil }
 	
-	let dayToken = parts[0]               // 一、二、三...
-	let periodToken = parts.last!         // "1,2" 或 "A,B,C,D"
+	let dayToken = parts[0]
+	let periodToken = parts.last!
 	
 	let periods = parsePeriods(from: periodToken)
 	guard !periods.isEmpty else { return nil }
@@ -315,7 +313,7 @@ private func formatTimeSegment(_ segment: String) -> String? {
 	let lastPeriod = sorted.last!
 	
 	let startTimeStr = getStartTime(for: firstPeriod)
-	let endTimeStr = getEndTime(for: lastPeriod)   // 用你剛定義的查表函數
+	let endTimeStr = getEndTime(for: lastPeriod)
 	
 	let periodRangeText: String
 	if firstPeriod == lastPeriod {

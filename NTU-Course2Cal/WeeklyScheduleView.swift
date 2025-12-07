@@ -38,13 +38,11 @@ struct WeeklyScheduleView: View {
 					// 課表區
 					ScrollView {
 						ZStack {
-							// 整個課表白底 + 圓角
 							RoundedRectangle(cornerRadius: 12)
 								.fill(Color(red: 229/255, green: 236/255, blue: 248/255))
 								.shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
 							
 							Grid(horizontalSpacing: 1, verticalSpacing: 1) {
-								// 表頭：星期
 								GridRow {
 									Color.clear.frame(width: 30, height: 30)
 									ForEach(days, id: \.self) { day in
@@ -54,8 +52,7 @@ struct WeeklyScheduleView: View {
 											.frame(maxWidth: .infinity)
 									}
 								}
-								
-								// 表身：節次 + 課程
+
 								ForEach(periods, id: \.self) { period in
 									GridRow {
 										// 左側節次欄
@@ -76,7 +73,7 @@ struct WeeklyScheduleView: View {
 						.padding()
 					}
 					
-					// 底部匯出按鈕們
+					// 底部匯出按鈕
 					VStack(spacing: 8) {
 						// 匯出到 Apple 行事曆
 						Button(action: {
@@ -138,7 +135,6 @@ struct WeeklyScheduleView: View {
 			}
 			.navigationTitle("我的課表")
 			
-			// Alert：依情境顯示不同主按鈕
 			.alert("匯出結果", isPresented: $showAlert) {
 				if alertMessage.contains("沒有任何課程可以匯出") {
 					Button("前往匯入課程") {
@@ -243,7 +239,6 @@ struct WeeklyScheduleView: View {
 		}
 	}
 	
-	// 判斷該格子顯示什麼（有課就可以點，跳出 CourseGroupCard）
 	@ViewBuilder
 	private func cellFor(weekday: Int, period: Int) -> some View {
 		if let match = viewModel.courses.first(where: { $0.isSelected && $0.weekday == weekday && $0.periods.contains(period) }) {
@@ -278,7 +273,6 @@ struct WeeklyScheduleView: View {
 		}
 	}
 	
-	// 找出該 cell 對應的 CourseGroup（邏輯跟 MyCoursesView 一致）
 	private func groupForCell(weekday: Int, period: Int) -> CourseGroup? {
 		guard let base = viewModel.courses.first(where: {
 			$0.weekday == weekday && $0.periods.contains(period)

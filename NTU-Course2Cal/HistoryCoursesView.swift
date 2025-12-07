@@ -28,7 +28,6 @@ struct HistoryCoursesView: View {
 		currentSemester?.courses ?? []
 	}
 	
-	// 和 MyCoursesView 同樣的 group 邏輯，只是改用 historyCourses
 	private var groupedCourses: [CourseGroup] {
 		let dict = Dictionary(grouping: historyCourses) { course in
 			course.name + "|" + course.teacher + "|" + course.location + "|" + course.rawTime
@@ -93,7 +92,7 @@ struct HistoryCoursesView: View {
 						}
 						.pickerStyle(.segmented)
 						.padding([.horizontal, .top])
-						.disabled(archivedSemesters.count <= 1)   // 只有一學期時讓它看起來像標籤
+						.disabled(archivedSemesters.count <= 1)
 						
 						if historyCourses.isEmpty {
 							Spacer()

@@ -8,7 +8,6 @@
 import SwiftUI
 import SwiftyGif
 
-/// 用來顯示本機 gif 檔的 UIViewRepresentable
 struct LocalGifView: UIViewRepresentable {
 	let gifName: String
 	let loopCount: Int   // -1 代表無限循環
@@ -22,22 +21,15 @@ struct LocalGifView: UIViewRepresentable {
 			imageView = UIImageView()
 		}
 		
-		// 關鍵修正 1: 設定內容模式為「等比例縮放」，這樣圖片才會配合 Frame 改變大小
 		imageView.contentMode = .scaleAspectFit
-		
-		// 關鍵修正 2: 告訴 AutoLayout 系統，這張圖片可以被壓縮 (允許縮小)
-		// 如果不設定這兩行，圖片可能會因為「抗壓縮優先級」太高而撐開 Frame
 		imageView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 		imageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
-		
-		// 確保圖片不會超出邊界
 		imageView.clipsToBounds = true
 		
 		return imageView
 	}
 	
 	func updateUIView(_ uiView: UIImageView, context: Context) {
-		// 不需要做事
 	}
 }
 
@@ -58,9 +50,6 @@ struct CopyTutorialView: View {
 				
 				// GIF 區域
 				LocalGifView(gifName: "tutorial.gif", loopCount: -1)
-					// 設定 Frame 高度或寬度。
-					// 建議設定 height 或讓它自適應，width: 50 可能會太小看不清楚，
-					// 這裡先設為 height: 300 讓它有足夠空間展示，你可以依需求調整。
 					.frame(height: 400)
 					.frame(maxWidth: .infinity, alignment: .center)   // 置中
 					.padding(.vertical, 15)

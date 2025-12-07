@@ -16,7 +16,7 @@ import GoogleSignInSwift
 
 struct Semester: Identifiable, Codable, Equatable {
 	var id: UUID = UUID()
-	var name: String          // 例如 "114-1"
+	var name: String
 	var startDate: Date
 	var courses: [Course]
 	var isArchived: Bool = false
@@ -45,15 +45,9 @@ struct GoogleCalendarInfo: Identifiable, Decodable {
 
 @MainActor
 class CourseViewModel: ObservableObject {
-	
-	// 現在畫面上這個學期的課程
 	@Published var courses: [Course] = []
-	
-	// 所有學期
 	@Published var semesters: [Semester] = []
 	@Published var currentSemesterId: UUID? = nil
-	
-	// Google 行事曆列表與選取的 calendarId
 	@Published var googleCalendars: [GoogleCalendarInfo] = []
 	@Published var selectedCalendarId: String = "primary"
 	@Published var appleCalendars: [EKCalendar] = []
@@ -76,7 +70,6 @@ class CourseViewModel: ObservableObject {
 		set { semesterStartDate = newValue.timeIntervalSince1970 }
 	}
 	
-	// 方便歷史課程頁用
 	var activeSemesters: [Semester] {
 		semesters.filter { !$0.isArchived }
 	}
@@ -92,13 +85,11 @@ class CourseViewModel: ObservableObject {
 	init() {
 		loadSemestersFromStorage()
 		
-		// 如果有學期, 載入目前學期
 		if let id = currentSemesterId,
 		   let sem = semesters.first(where: { $0.id == id }) {
 			self.courses = sem.courses
 			self.startDate = sem.startDate
 		} else if let first = semesters.first {
-			// 沒有 currentId 就用第一個
 			currentSemesterId = first.id
 			storedCurrentSemesterId = first.id.uuidString
 			self.courses = first.courses
@@ -534,7 +525,7 @@ class CourseViewModel: ObservableObject {
 		return formatter.string(from: date)
 	}
 	
-	// MARK: - 匯出到 Google Calendar (簡單版, 使用 selectedCalendarId)
+	// MARK: - 匯出到 Google Calendar
 	
 	func exportToGoogleCalendar(using signInManager: GoogleSignInManager) async -> (Bool, String) {
 		guard let user = signInManager.user else {
@@ -860,7 +851,6 @@ class CourseViewModel: ObservableObject {
 	func rescheduleAllClassNotifications() {
 		let center = UNUserNotificationCenter.current()
 		
-		// 先清掉舊的課程通知（這裡示範直接全清）
 		center.removeAllPendingNotificationRequests()
 		
 		let selectedCourses = courses.filter { $0.isSelected }
@@ -872,7 +862,6 @@ class CourseViewModel: ObservableObject {
 	}
 	
 
-	/// 為單一課程排 16 週的提醒（你可以依學期長度調整）
 	private func scheduleNotifications(for course: Course,
 									   center: UNUserNotificationCenter,
 									   weeks: Int = 16) {
@@ -883,7 +872,6 @@ class CourseViewModel: ObservableObject {
 				weekOffset: weekOffset
 			) else { continue }
 			
-			// 提前 N 分鐘
 			let fireDate = classDate.addingTimeInterval(
 				TimeInterval(-notifyMinutesBeforeLocal * 60)
 			)
@@ -901,7 +889,6 @@ class CourseViewModel: ObservableObject {
 			
 			let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
 			
-			// 用課名 + 星期 + 週次當作 id，方便之後如果要精準移除
 			let identifier = "course_\(course.name)_\(course.weekday)_\(weekOffset)"
 				.replacingOccurrences(of: " ", with: "_")
 			
@@ -928,8 +915,6 @@ class CourseViewModel: ObservableObject {
 		storedSemestersData = Data()
 		storedCurrentSemesterId = ""
 		
-		// 開學日、通知時間可以看你要不要也一起重置
-		// 例如:
 		// semesterStartDate = Date().timeIntervalSince1970
 	}
 }

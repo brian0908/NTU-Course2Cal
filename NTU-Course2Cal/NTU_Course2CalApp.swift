@@ -24,7 +24,7 @@ struct NTU_Course2CalApp: App {
 				}
 			}
 			.environmentObject(viewModel)
-			.environmentObject(signInManager)   // 這一行很關鍵
+			.environmentObject(signInManager)
 		}
 	}
 }

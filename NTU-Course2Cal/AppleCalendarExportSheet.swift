@@ -170,8 +170,6 @@ struct AppleCalendarExportSheet: View {
 		
 		// 設定目標行事曆
 		viewModel.setAppleTargetCalendar(id: selectedCalendarId)
-		
-		// 直接用你原本的 exportToCalendar
 		isExporting = true
 		await withCheckedContinuation { continuation in
 			viewModel.exportToCalendar { success, msg in
