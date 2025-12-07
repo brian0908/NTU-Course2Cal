@@ -9,12 +9,58 @@ import SwiftUI
 import GoogleSignIn
 import GoogleSignInSwift
 import UIKit
+import UserNotifications
 
 struct SettingsView: View {
 	@EnvironmentObject var viewModel: CourseViewModel
 	@EnvironmentObject var signInManager: GoogleSignInManager
 	@State private var showingClearConfirm = false
 	@State private var showingArchiveConfirm = false
+	@AppStorage("enableLocalNotifications") private var enableLocalNotifications: Bool = false
+	private let calendarNotifyOptions: [Int] = [0, 5, 10, 15, 30, 60]
+	private var calendarNotificationSection: some View {
+		Section("行事曆通知") {
+			Picker("行事曆提醒時間", selection: $viewModel.notifyMinutesBeforeCalendar) {
+				ForEach(calendarNotifyOptions, id: \.self) { minutes in
+					if minutes == 0 {
+						Text("不提醒").tag(minutes)
+					} else {
+						Text("提前 \(minutes) 分鐘").tag(minutes)
+					}
+				}
+			}
+			.pickerStyle(.menu)   // 顯示成下拉式選單
+			
+			// 補充說明文字
+			Text("會用在匯出到行事曆的事件提醒。")
+				.font(.footnote)
+				.foregroundColor(.secondary)
+		}
+	}
+	private var appNotificationSection: some View {
+		Section("App 通知提醒") {
+			Toggle("啟用 App 通知", isOn: $enableLocalNotifications)
+				.onChange(of: enableLocalNotifications) { _, newValue in
+					if newValue {
+						viewModel.requestNotificationAuthorization()
+						viewModel.rescheduleAllClassNotifications()
+					} else {
+						UNUserNotificationCenter.current()
+							.removeAllPendingNotificationRequests()
+					}
+				}
+			
+			Stepper("App 通知提前 \(viewModel.notifyMinutesBeforeLocal) 分鐘提醒",
+					value: $viewModel.notifyMinutesBeforeLocal,
+					in: 0...120,
+					step: 5)
+			
+			Button("重新排程本學期所有 App 通知") {
+				viewModel.rescheduleAllClassNotifications()
+			}
+			.disabled(!enableLocalNotifications)
+		}
+	}
 	
 	var body: some View {
 		NavigationStack {
@@ -50,11 +96,22 @@ struct SettingsView: View {
 					}
 					
 					// 建立新學期
-					NavigationLink("建立新學期") {
+					NavigationLink {
 						NewSemesterView()
 							.environmentObject(viewModel)
-					}.fontWeight(.semibold)
-						.foregroundColor(.ntuBlue)
+					} label: {
+						HStack {
+							Image(systemName: "plus.circle.fill")
+							Text("建立新學期")
+								.fontWeight(.semibold)
+						}
+						.frame(maxWidth: .infinity, alignment: .center)
+					}
+					.foregroundColor(.white)
+					.listRowBackground(
+						Color(red: 0/255, green: 75/255, blue: 151/255)
+						
+					)
 					
 					if viewModel.currentSemesterId != nil {
 						Button("將目前學期移至歷史課程") {
@@ -129,14 +186,64 @@ struct SettingsView: View {
 					}
 				}
 				
-				// 通知設定與清除資料照舊
-				Section(header: Text("通知設定")) {
-					Picker("上課前提醒", selection: $viewModel.notifyMinutesBefore) {
-						Text("不提醒").tag(0)
-						Text("10 分鐘前").tag(10)
-						Text("30 分鐘前").tag(30)
-						Text("1 小時前").tag(60)
+				// 行事曆通知：改成下拉選單
+				Section("行事曆通知") {
+					Picker("行事曆提醒時間", selection: $viewModel.notifyMinutesBeforeCalendar) {
+						ForEach(calendarNotifyOptions, id: \.self) { minutes in
+							if minutes == 0 {
+								Text("不提醒").tag(minutes)
+							} else {
+								Text("提前 \(minutes) 分鐘通知").tag(minutes)
+							}
+						}
 					}.fontWeight(.semibold)
+					.pickerStyle(.menu)
+					
+					Text("這裡只影響匯出到 Apple 行事曆事件的提醒時間。")
+						.font(.footnote)
+						.foregroundColor(.secondary)
+				}
+
+				// App 通知提醒：保留 Stepper，獨立設定
+				Section("App 通知提醒") {
+					Toggle("啟用 App 通知", isOn: $enableLocalNotifications)
+						.onChange(of: enableLocalNotifications) { _, newValue in
+							if newValue {
+								viewModel.requestNotificationAuthorization()
+								viewModel.rescheduleAllClassNotifications()
+							} else {
+								UNUserNotificationCenter.current()
+									.removeAllPendingNotificationRequests()
+							}
+						}.fontWeight(.semibold)
+									
+					// 顯示目前設定值，顏色用 ntuBlue
+					VStack(alignment: .leading, spacing: 4) {
+						Text("上課前提醒時間")
+							.font(.subheadline)
+							.foregroundColor(.secondary)
+						
+						Text("\(viewModel.notifyMinutesBeforeLocal) 分鐘前")
+							.font(.title3.bold())
+							.foregroundColor(.ntuBlue)
+					}
+					.padding(.vertical, 4)
+					
+					// Stepper 控制數值
+					Stepper(
+						"調整提醒時間",
+						value: $viewModel.notifyMinutesBeforeLocal,
+						in: 0...120,
+						step: 5
+					).fontWeight(.semibold)
+					
+					
+					Button("重新排程本學期所有 App 通知") {
+						viewModel.rescheduleAllClassNotifications()
+					}
+					.disabled(!enableLocalNotifications)
+					.fontWeight(.semibold)
+					.frame(maxWidth: .infinity, alignment: .center)
 				}
 				
 				Section {
@@ -155,7 +262,10 @@ struct SettingsView: View {
 				} message: {
 					Text("此動作無法復原。")
 				}
+				
+				
 			}
+			
 			.navigationTitle("設定")
 		}
 	}

@@ -20,6 +20,7 @@ struct WeeklyScheduleView: View {
 	// 匯入課程與設定頁的 sheet 控制
 	@State private var showImportSheet = false
 	@State private var showSettingsSheet = false
+	@State private var showAppleSheet = false
 	
 	// 點課表 cell 彈出 CourseGroupCard 用
 	@State private var activeGroup: CourseGroup?
@@ -85,10 +86,8 @@ struct WeeklyScheduleView: View {
 								return
 							}
 							
-							viewModel.exportToCalendar { _, msg in
-								alertMessage = msg
-								showAlert = true
-							}
+							// 有課程就打開 Apple 匯出畫面
+							showAppleSheet = true
 						}) {
 							HStack {
 								Image(systemName: "apple.logo")
@@ -158,6 +157,10 @@ struct WeeklyScheduleView: View {
 				Text(alertMessage)
 			}
 			
+			.sheet(isPresented: $showAppleSheet) {
+				AppleCalendarExportSheet()
+					.environmentObject(viewModel)
+			}
 			// 匯出 Google 行事曆用的 sheet
 			.sheet(isPresented: $showGoogleSheet) {
 				GoogleCalendarExportSheet()

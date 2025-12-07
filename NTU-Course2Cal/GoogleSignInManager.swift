@@ -13,7 +13,21 @@ import Combine
 class GoogleSignInManager: ObservableObject {
 	@Published var user: GIDGoogleUser?
 	@Published var accessToken: String?
+	@Published var isRestoring: Bool = true     // ← 這個就是你缺的
+	@Published var isSignedIn: Bool = false
 	
+	init() {
+			restorePreviousSignIn()
+		}
+
+	func restorePreviousSignIn() {
+		GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
+			DispatchQueue.main.async {
+				self.user = user
+				self.isRestoring = false
+			}
+		}
+	}
 	// 必須包含建立 calendar、讀取清單、寫入事件
 	let scopes = [
 		"https://www.googleapis.com/auth/calendar",

@@ -55,11 +55,21 @@ struct InputSheetView: View {
 						}
 						
 						// 建立新學期
-						NavigationLink("建立新學期") {
+						NavigationLink {
 							NewSemesterView()
 								.environmentObject(viewModel)
-						}.fontWeight(.semibold)
-							.foregroundColor(.ntuBlue)
+						} label: {
+							HStack {
+								Image(systemName: "plus.circle.fill")
+								Text("建立新學期")
+									.fontWeight(.semibold)
+							}
+							.frame(maxWidth: .infinity, alignment: .center)
+						}
+						.foregroundColor(.white)
+						.listRowBackground(
+							Color(red: 0/255, green: 75/255, blue: 151/255)
+						)
 					}
 					// 必要設定
 					Section(header: Text("開學日設定")) {

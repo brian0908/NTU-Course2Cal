@@ -1,19 +1,19 @@
 //
-//  GoogleCalendarExportSheet.swift
+//  AppleCalendarExportSheet.swift
 //  NTU-Course2Cal
 //
-//  Created by Brian Lee on 12/6/25.
-//  Updated for 2 step UI
+//  Created by Brian Lee on 12/7/25.
 //
 
-import SwiftUI
 
-struct GoogleCalendarExportSheet: View {
+import SwiftUI
+import EventKit
+
+struct AppleCalendarExportSheet: View {
 	@Environment(\.dismiss) var dismiss
 	@EnvironmentObject var viewModel: CourseViewModel
-	@EnvironmentObject var signInManager: GoogleSignInManager
 	
-	@State private var calendars: [GoogleCalendarInfo] = []
+	@State private var calendars: [EKCalendar] = []
 	@State private var selectedCalendarId: String = ""
 	
 	@State private var newCalendarName: String = ""
@@ -28,16 +28,14 @@ struct GoogleCalendarExportSheet: View {
 		NavigationStack {
 			Form {
 				if isLoading {
-					ProgressView("讀取 Google 行事曆中...")
+					ProgressView("讀取 Apple 行事曆中...")
 				} else {
 					// Step 1: 建立新行事曆 (Optional)
 					Section(header: Text("Step 1: 建立新行事曆 (Optional)")) {
-						TextField("例如 114-1 課表", text: $newCalendarName)
+						TextField("例如：114-1 課表", text: $newCalendarName)
 						
 						Button {
-							Task {
-								await createCalendar()
-							}
+							createCalendar()
 						} label: {
 							HStack {
 								Spacer()
@@ -61,13 +59,13 @@ struct GoogleCalendarExportSheet: View {
 					// Step 2: 選擇匯入的行事曆
 					Section(header: Text("Step 2: 選擇匯入的行事曆")) {
 						if calendars.isEmpty {
-							Text("找不到任何 Google 行事曆")
+							Text("找不到可寫入的 Apple 行事曆")
 								.foregroundColor(.secondary)
 						} else {
 							Picker("行事曆", selection: $selectedCalendarId) {
-								ForEach(calendars) { cal in
-									Text(cal.summary)
-										.tag(cal.id)
+								ForEach(calendars, id: \.calendarIdentifier) { cal in
+									Text(cal.title)
+										.tag(cal.calendarIdentifier)
 								}
 							}
 						}
@@ -100,7 +98,7 @@ struct GoogleCalendarExportSheet: View {
 					}
 				}
 			}
-			.navigationTitle("匯出到 Google 行事曆")
+			.navigationTitle("匯出到 Apple 行事曆")
 			.toolbar {
 				ToolbarItem(placement: .cancellationAction) {
 					Button("關閉") {
@@ -113,6 +111,7 @@ struct GoogleCalendarExportSheet: View {
 			}
 			.alert("匯出結果", isPresented: $showAlert) {
 				Button("OK") {
+					// 匯出成功時順便關掉 sheet
 					if alertMessage.contains("成功") {
 						dismiss()
 					}
@@ -123,79 +122,66 @@ struct GoogleCalendarExportSheet: View {
 		}
 	}
 	
-	// MARK: - 載入 Google 行事曆列表
+	// MARK: - 載入行事曆
 	private func loadCalendars() async {
-		// 如果沒登入 Google 直接跳錯
-		guard signInManager.user != nil else {
-			alertMessage = "請先在設定頁登入 Google 帳號"
-			showAlert = true
-			return
-		}
-		
 		isLoading = true
-		let list = await viewModel.fetchGoogleCalendars(using: signInManager)
-		
-		await MainActor.run {
-			self.calendars = list
-			if let primary = list.first(where: { $0.primary == true }) {
-				self.selectedCalendarId = primary.id
-			} else {
-				self.selectedCalendarId = list.first?.id ?? ""
+		await withCheckedContinuation { continuation in
+			viewModel.loadAppleCalendars { success, msg in
+				self.calendars = viewModel.appleCalendars
+				self.selectedCalendarId = viewModel.appleTargetCalendarId
+				self.isLoading = false
+				
+				if !success {
+					self.alertMessage = msg
+					self.showAlert = true
+				}
+				continuation.resume()
 			}
-			
-			if list.isEmpty {
-				self.alertMessage = "找不到任何 Google 行事曆"
-				self.showAlert = true
-			}
-			
-			self.isLoading = false
 		}
 	}
 	
-	// MARK: - 建立新 Google 行事曆
-	private func createCalendar() async {
+	// MARK: - 建立新行事曆
+	private func createCalendar() {
 		let trimmed = newCalendarName.trimmingCharacters(in: .whitespaces)
 		guard !trimmed.isEmpty else { return }
 		
 		isCreating = true
-		let result = await viewModel.createGoogleCalendar(named: trimmed, using: signInManager)
-		
-		await MainActor.run {
-			self.isCreating = false
-			if let newCal = result {
-				// 加入本地列表並選取
-				self.calendars.append(newCal)
-				self.selectedCalendarId = newCal.id
+		viewModel.createAppleCalendar(named: trimmed) { success, msg in
+			Task { @MainActor in
+				self.isCreating = false
+				self.alertMessage = msg
+				self.showAlert = true
+				
+				// 重新載入列表
+				self.calendars = viewModel.appleCalendars
+				self.selectedCalendarId = viewModel.appleTargetCalendarId
 				self.newCalendarName = ""
-				self.alertMessage = "已建立行事曆「\(trimmed)」"
-				self.showAlert = true
-			} else {
-				self.alertMessage = "建立行事曆失敗，請確認已登入 Google 並允許行事曆權限"
-				self.showAlert = true
 			}
 		}
 	}
 	
-	// MARK: - 匯出課程到選定的 Google Calendar
+	// MARK: - 匯出
 	private func doExport() async {
 		guard !selectedCalendarId.isEmpty else {
-			await MainActor.run {
-				alertMessage = "尚未選擇行事曆"
-				showAlert = true
-			}
+			alertMessage = "尚未選擇行事曆"
+			showAlert = true
 			return
 		}
 		
-		isExporting = true
-		let (_, msg) = await viewModel.exportToGoogleCalendar(
-			using: signInManager,
-			calendarID: selectedCalendarId
-		)
+		// 設定目標行事曆
+		viewModel.setAppleTargetCalendar(id: selectedCalendarId)
 		
-		await MainActor.run {
-			self.isExporting = false
-			self.alertMessage = msg
-			self.showAlert = true
+		// 直接用你原本的 exportToCalendar
+		isExporting = true
+		await withCheckedContinuation { continuation in
+			viewModel.exportToCalendar { success, msg in
+				Task { @MainActor in
+					self.isExporting = false
+					self.alertMessage = msg
+					self.showAlert = true
+					continuation.resume()
+				}
+			}
 		}
 	}
 }

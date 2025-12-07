@@ -41,7 +41,6 @@ struct GoogleCalendarInfo: Identifiable, Decodable {
 	let summary: String
 	let primary: Bool?
 }
-
 // MARK: - ViewModel
 
 @MainActor
@@ -57,9 +56,14 @@ class CourseViewModel: ObservableObject {
 	// Google 行事曆列表與選取的 calendarId
 	@Published var googleCalendars: [GoogleCalendarInfo] = []
 	@Published var selectedCalendarId: String = "primary"
-	
+	@Published var appleCalendars: [EKCalendar] = []
+	@AppStorage("appleTargetCalendarId") var appleTargetCalendarId: String = ""
 	@AppStorage("semesterStartDate") var semesterStartDate: Double = Date().timeIntervalSince1970
-	@AppStorage("notifyMinutesBefore") var notifyMinutesBefore: Int = 10
+	// 行事曆事件的提醒時間
+	@AppStorage("notifyMinutesBeforeCalendar") var notifyMinutesBeforeCalendar: Int = 10
+
+	// App 本地通知的提醒時間
+	@AppStorage("notifyMinutesBeforeLocal") var notifyMinutesBeforeLocal: Int = 10
 	
 	// 儲存所有學期資料用
 	@AppStorage("storedSemestersData") private var storedSemestersData: Data = Data()
@@ -289,6 +293,9 @@ class CourseViewModel: ObservableObject {
 				let success = !newCourses.isEmpty
 				if success {
 					self.saveCurrentSemesterCourses()
+					if UserDefaults.standard.bool(forKey: "enableLocalNotifications") {
+						self.rescheduleAllClassNotifications()
+					}
 				}
 				completion(success)
 			}
@@ -366,46 +373,151 @@ class CourseViewModel: ObservableObject {
 	}
 	
 	private func createEvent(for course: Course) {
-		guard let firstClassDate = calculateDate(weekday: course.weekday, periods: course.periods) else { return }
-		
-		let event = EKEvent(eventStore: eventStore)
-		event.title = course.name
-		event.location = course.location
-		event.notes = "授課老師：\(course.teacher)"
-		event.startDate = firstClassDate
-		event.endDate = firstClassDate.addingTimeInterval(TimeInterval(50 * 60 * course.periods.count))
-		event.calendar = eventStore.defaultCalendarForNewEvents
-		
-		if notifyMinutesBefore > 0 {
-			event.addAlarm(EKAlarm(relativeOffset: TimeInterval(-notifyMinutesBefore * 60)))
+			guard let firstClassDate = calculateDate(weekday: course.weekday, periods: course.periods) else { return }
+			
+			let event = EKEvent(eventStore: eventStore)
+			event.title = course.name
+			event.location = course.location
+			event.notes = "授課老師：\(course.teacher)"
+			event.startDate = firstClassDate
+			event.endDate = firstClassDate.addingTimeInterval(TimeInterval(50 * 60 * course.periods.count))
+			
+			// 優先用使用者選擇的行事曆
+			if let target = eventStore.calendar(withIdentifier: appleTargetCalendarId) {
+				event.calendar = target
+			} else {
+				event.calendar = eventStore.defaultCalendarForNewEvents
+			}
+			
+			if notifyMinutesBeforeCalendar > 0 {
+				event.addAlarm(EKAlarm(relativeOffset: TimeInterval(-notifyMinutesBeforeCalendar * 60)))
+			}
+			
+			let rule = EKRecurrenceRule(
+				recurrenceWith: .weekly,
+				interval: 1,
+				end: EKRecurrenceEnd(occurrenceCount: 16)
+			)
+			event.addRecurrenceRule(rule)
+			
+			do {
+				try eventStore.save(event, span: .thisEvent)
+			} catch {
+				print("Save failed: \(error)")
+			}
 		}
 		
-		let rule = EKRecurrenceRule(
-			recurrenceWith: .weekly,
-			interval: 1,
-			end: EKRecurrenceEnd(occurrenceCount: 16)
-		)
-		event.addRecurrenceRule(rule)
-		
-		do {
-			try eventStore.save(event, span: .thisEvent)
-		} catch {
-			print("Save failed: \(error)")
+		// 請求 Apple 行事曆權限
+		func requestAppleCalendarAccess(completion: @escaping (Bool, String) -> Void) {
+			let handler: @Sendable (Bool, Error?) -> Void = { granted, error in
+				Task { @MainActor in
+					if granted, error == nil {
+						completion(true, "已取得行事曆權限")
+					} else {
+						completion(false, "沒有行事曆權限")
+					}
+				}
+			}
+			
+			if #available(iOS 17.0, *) {
+				eventStore.requestFullAccessToEvents(completion: handler)
+			} else {
+				eventStore.requestAccess(to: .event, completion: handler)
+			}
 		}
-	}
+		
+		// 讀取可寫入的 Apple 行事曆
+		func loadAppleCalendars(completion: @escaping (Bool, String) -> Void) {
+			requestAppleCalendarAccess { [weak self] granted, msg in
+				guard let self = self, granted else {
+					completion(false, msg)
+					return
+				}
+				
+				let all = self.eventStore.calendars(for: .event)
+				// 只留可以寫入的
+				let writable = all.filter { $0.allowsContentModifications }
+				
+				self.appleCalendars = writable
+				
+				// 若目前設定的 id 不存在,就選第一個或 default
+				if let current = self.eventStore.calendar(withIdentifier: self.appleTargetCalendarId),
+				   current.allowsContentModifications {
+					// ok, 不用改
+				} else if let first = writable.first {
+					self.appleTargetCalendarId = first.calendarIdentifier
+				} else if let def = self.eventStore.defaultCalendarForNewEvents {
+					self.appleTargetCalendarId = def.calendarIdentifier
+				}
+				
+				completion(true, "已載入 \(writable.count) 個行事曆")
+			}
+		}
+		
+		// 建立新的 Apple 行事曆
+		func createAppleCalendar(named name: String,
+								 completion: @escaping (Bool, String) -> Void) {
+			requestAppleCalendarAccess { [weak self] granted, msg in
+				guard let self = self, granted else {
+					completion(false, msg)
+					return
+				}
+				
+				let newCalendar = EKCalendar(for: .event, eventStore: self.eventStore)
+				newCalendar.title = name
+				
+				// 優先使用 iCloud, 再用本機
+				let sources = self.eventStore.sources
+				let iCloudSource = sources.first { $0.sourceType == .calDAV && $0.title.contains("iCloud") }
+				let localSource = sources.first { $0.sourceType == .local }
+				
+				guard let source = iCloudSource ?? localSource else {
+					completion(false, "找不到可用的行事曆來源 (iCloud 或本機)")
+					return
+				}
+				
+				newCalendar.source = source
+				
+				do {
+					try self.eventStore.saveCalendar(newCalendar, commit: true)
+					self.appleCalendars.append(newCalendar)
+					self.appleTargetCalendarId = newCalendar.calendarIdentifier
+					completion(true, "已建立行事曆「\(name)」")
+				} catch {
+					print("createAppleCalendar error:", error)
+					completion(false, "建立行事曆失敗: \(error.localizedDescription)")
+				}
+			}
+		}
+		
+		// 設定要匯出的 Apple 行事曆 id
+		func setAppleTargetCalendar(id: String) {
+			appleTargetCalendarId = id
+		}
 	
-	private func calculateDate(weekday: Int, periods: [Int]) -> Date? {
+	private func calculateDate(weekday: Int,
+							   periods: [Int],
+							   weekOffset: Int = 0) -> Date? {
 		let calendar = Calendar.current
 		let startWeekday = calendar.component(.weekday, from: startDate)
 		var dayDiff = weekday - startWeekday
 		if dayDiff < 0 { dayDiff += 7 }
 		
-		guard let targetDate = calendar.date(byAdding: .day, value: dayDiff, to: startDate) else { return nil }
+		// 加上第幾週
+		dayDiff += weekOffset * 7
+		
+		guard let targetDate = calendar.date(
+			byAdding: .day,
+			value: dayDiff,
+			to: startDate
+		) else { return nil }
 		
 		let startTimeString = getStartTime(for: periods.first ?? 1)
 		let formatter = DateFormatter()
 		formatter.dateFormat = "yyyy-MM-dd HH:mm"
-		let fullString = "\(formatter.string(from: targetDate).prefix(10)) \(startTimeString)"
+		
+		let datePart = formatter.string(from: targetDate).prefix(10)
+		let fullString = "\(datePart) \(startTimeString)"
 		
 		return formatter.date(from: fullString)
 	}
@@ -727,6 +839,80 @@ class CourseViewModel: ObservableObject {
 		}
 		
 		saveSemestersToStorage()
+	}
+	// MARK: - 本地通知
+
+	func requestNotificationAuthorization() {
+		let center = UNUserNotificationCenter.current()
+		center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+			if let error = error {
+				print("Notification auth error:", error)
+			} else {
+				print("Notification granted:", granted)
+			}
+		}
+	}
+
+	/// 重新排程所有「已勾選」課程的通知
+	func rescheduleAllClassNotifications() {
+		let center = UNUserNotificationCenter.current()
+		
+		// 先清掉舊的課程通知（這裡示範直接全清）
+		center.removeAllPendingNotificationRequests()
+		
+		let selectedCourses = courses.filter { $0.isSelected }
+		guard notifyMinutesBeforeLocal > 0, !selectedCourses.isEmpty else { return }
+		
+		for course in selectedCourses {
+			scheduleNotifications(for: course, center: center)
+		}
+	}
+
+	/// 為單一課程排 16 週的提醒（你可以依學期長度調整）
+	private func scheduleNotifications(for course: Course,
+									   center: UNUserNotificationCenter,
+									   weeks: Int = 16) {
+		for weekOffset in 0..<weeks {
+			guard let classDate = calculateDate(
+				weekday: course.weekday,
+				periods: course.periods,
+				weekOffset: weekOffset
+			) else { continue }
+			
+			// 提前 N 分鐘
+			let fireDate = classDate.addingTimeInterval(
+				TimeInterval(-notifyMinutesBeforeLocal * 60)
+			)
+			if fireDate < Date() { continue }  // 過去的時間不用排
+			
+			let content = UNMutableNotificationContent()
+			content.title = course.name
+			content.body = "即將上課：\(course.rawTime) \(course.location)（\(course.teacher)）"
+			content.sound = .default
+			
+			let comps = Calendar.current.dateComponents(
+				[.year, .month, .day, .hour, .minute],
+				from: fireDate
+			)
+			
+			let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
+			
+			// 用課名 + 星期 + 週次當作 id，方便之後如果要精準移除
+			let identifier = "course_\(course.name)_\(course.weekday)_\(weekOffset)"
+				.replacingOccurrences(of: " ", with: "_")
+			
+			let request = UNNotificationRequest(
+				identifier: identifier,
+				content: content,
+				trigger: trigger
+			)
+			
+			center.add(request) { error in
+				if let error = error {
+					print("Add notification error:", error)
+				}
+			}
+		}
 	}
 }
 

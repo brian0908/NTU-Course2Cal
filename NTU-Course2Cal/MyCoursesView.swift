@@ -73,9 +73,12 @@ struct MyCoursesView: View {
 						Label("快匯入本學期的課程吧！", systemImage: "hand.point.down")
 							.font(.title3)
 							.foregroundColor(.secondary)
-						Button("匯入課表") { showInputSheet = true }
-							.buttonStyle(.glassProminent)
-							.fontWeight(.semibold)
+						Button("匯入課表") {
+							showInputSheet = true
+						}
+						.buttonStyle(.glassProminent)
+						.fontWeight(.semibold)
+						.frame(maxWidth: .infinity) 
 					}
 				} else {
 					List {

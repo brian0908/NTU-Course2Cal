@@ -53,11 +53,11 @@ struct MainTabView: View {
 	}
 }
 
-
-
-
-#Preview {
+#Preview{
 	MainTabView()
 		.environmentObject(CourseViewModel())
 		.environmentObject(GoogleSignInManager())
 }
+
+
+
