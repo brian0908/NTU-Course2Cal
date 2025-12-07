@@ -887,7 +887,7 @@ class CourseViewModel: ObservableObject {
 			
 			let content = UNMutableNotificationContent()
 			content.title = course.name
-			content.body = "即將上課：\(course.rawTime) \(course.location)（\(course.teacher)）"
+			content.body = "即將上課：\(course.rawTime) \(course.location)"
 			content.sound = .default
 			
 			let comps = Calendar.current.dateComponents(
