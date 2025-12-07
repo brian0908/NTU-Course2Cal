@@ -25,6 +25,54 @@ struct InputSheetView: View {
 		ZStack {
 			NavigationStack {
 				Form {
+					Section("學期管理") {
+						// 顯示目前學期
+						if let currentId = viewModel.currentSemesterId,
+						   let sem = viewModel.semesters.first(where: { $0.id == currentId }) {
+							Text("目前學期：\(sem.name)")
+								.font(.headline)
+								.fontWeight(.semibold)
+								.foregroundColor(.ntuBlue)
+						} else {
+							Text("目前尚未建立學期")
+								.font(.subheadline)
+								.foregroundColor(.secondary)
+						}
+						
+						// 列出所有 active 學期讓使用者切換
+						if !viewModel.activeSemesters.isEmpty {
+							Picker("切換學期", selection: Binding(
+								get: { viewModel.currentSemesterId },
+								set: { newId in
+									if let id = newId {
+										viewModel.switchSemester(to: id)
+									}
+								}
+							)) {
+								ForEach(viewModel.activeSemesters) { sem in
+									Text(sem.name).tag(Optional(sem.id))
+								}
+							}
+							.fontWeight(.semibold)
+						}
+						
+						// 建立新學期
+						NavigationLink {
+							NewSemesterView()
+								.environmentObject(viewModel)
+						} label: {
+							HStack {
+								Image(systemName: "plus.circle.fill")
+								Text("建立新學期")
+									.fontWeight(.semibold)
+							}
+							.frame(maxWidth: .infinity, alignment: .center)
+						}
+						.foregroundColor(.white)
+						.listRowBackground(
+							Color(red: 0/255, green: 75/255, blue: 151/255)
+							
+						)}
 					// 必要設定
 					Section(header: Text("必要設定")) {
 						DatePicker(
