@@ -125,6 +125,15 @@ struct InputSheetView: View {
 								.cornerRadius(8)
 							}
 						}
+						NavigationLink {
+								CopyTutorialView()
+						} label: {
+							HStack {
+								Image(systemName: "questionmark.circle")
+								Text("查看複製課表教學")
+									.font(.subheadline)
+							}.frame(maxWidth:.infinity,alignment: .trailing)
+						}
 					}
 					.alert("請先選擇學期", isPresented: $showNeedSemesterAlert) {
 						Button("OK", role: .cancel) { }
