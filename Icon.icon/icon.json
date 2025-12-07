@@ -1,0 +1,100 @@
+{
+  "fill" : "automatic",
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "fill" : {
+            "solid" : "display-p3:0.03922,0.37255,0.77255,1.00000"
+          },
+          "image-name" : "plus-sign-in-a-black-circle.png",
+          "name" : "plus-sign-in-a-black-circle",
+          "position" : {
+            "scale" : 0.5,
+            "translation-in-points" : [
+              264.8885926871835,
+              309.1041305860856
+            ]
+          }
+        },
+        {
+          "blend-mode-specializations" : [
+            {
+              "value" : "overlay"
+            },
+            {
+              "appearance" : "tinted",
+              "value" : "normal"
+            }
+          ],
+          "fill" : {
+            "solid" : "extended-gray:1.00000,1.00000"
+          },
+          "image-name" : "new-moon.png",
+          "name" : "new-moon",
+          "position" : {
+            "scale" : 0.49,
+            "translation-in-points" : [
+              264.8885926871835,
+              309.1041305860856
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "layers" : [
+        {
+          "blend-mode" : "normal",
+          "fill" : {
+            "linear-gradient" : [
+              "display-p3:0.87617,0.84365,0.54595,1.00000",
+              "display-p3:0.03922,0.37255,0.77255,1.00000"
+            ],
+            "orientation" : {
+              "start" : {
+                "x" : 0.8835057910671853,
+                "y" : 0.9146252340266885
+              },
+              "stop" : {
+                "x" : 0.14315874287250901,
+                "y" : 0.168512287148043
+              }
+            }
+          },
+          "image-name" : "calendar.png",
+          "name" : "calendar",
+          "position" : {
+            "scale" : 1.65,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}

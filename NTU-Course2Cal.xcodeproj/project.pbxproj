@@ -11,10 +11,12 @@
 		0A17D2362EE476E8000444EE /* SwiftyGif in Frameworks */ = {isa = PBXBuildFile; productRef = 0A17D2352EE476E8000444EE /* SwiftyGif */; };
 		0A17D23B2EE476F6000444EE /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 0A17D23A2EE476F6000444EE /* GoogleSignIn */; };
 		0A17D23D2EE476F6000444EE /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 0A17D23C2EE476F6000444EE /* GoogleSignInSwift */; };
+		0AC337412EE56AD100544888 /* Icon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 0AC337402EE56AD100544888 /* Icon.icon */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0A17D2092EE47609000444EE /* NTU-Course2Cal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "NTU-Course2Cal.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0AC337402EE56AD100544888 /* Icon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = Icon.icon; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -56,6 +58,7 @@
 		0A17D2002EE47609000444EE = {
 			isa = PBXGroup;
 			children = (
+				0AC337402EE56AD100544888 /* Icon.icon */,
 				0A17D20B2EE47609000444EE /* NTU-Course2Cal */,
 				0A17D20A2EE47609000444EE /* Products */,
 			);
@@ -143,6 +146,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0AC337412EE56AD100544888 /* Icon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,8 +287,9 @@
 		0A17D2152EE47612000444EE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Icon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -292,6 +297,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "NTU-Course2Cal/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "NTU Course2Cal";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "App 需要存取您的行事曆以匯入課程資訊。";
 				INFOPLIST_KEY_NSRemindersUsageDescription = "App 需要新增提醒事件。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -322,8 +328,9 @@
 		0A17D2162EE47612000444EE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Icon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -331,6 +338,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "NTU-Course2Cal/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "NTU Course2Cal";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "App 需要存取您的行事曆以匯入課程資訊。";
 				INFOPLIST_KEY_NSRemindersUsageDescription = "App 需要新增提醒事件。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
