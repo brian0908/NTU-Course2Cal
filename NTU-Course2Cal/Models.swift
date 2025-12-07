@@ -9,18 +9,19 @@ import Foundation
 import SwiftUI
 
 // 定義課程資料結構
-struct Course: Identifiable, Codable, Equatable {
+struct Course: Identifiable, Equatable, Codable {
 	var id = UUID()
 	var name: String
 	var teacher: String
 	var location: String
-	var rawTime: String      // 原始時間字串，例如 "一 1,2 / 三 5,6"
-	var weekday: Int         // 1 = 週日, 2 = 週一 ...
-	var periods: [Int]       // 節次
-	var isSelected: Bool = true
-	var credits: Int? = nil  // 新增
-	var notes: String = ""   // 新增
+	var rawTime: String
+	var weekday: Int
+	var periods: [Int]
+	var isSelected: Bool
+	var credits: Int?
+	var notes: String
 }
+
 
 // 台大節次對照表 (節次 -> 開始時間)
 // 依據使用者提供的最新時間表更新

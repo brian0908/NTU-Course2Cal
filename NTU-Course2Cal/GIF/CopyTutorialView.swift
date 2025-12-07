@@ -67,7 +67,7 @@ struct CopyTutorialView: View {
 
 				// 步驟說明
 				VStack(alignment: .leading, spacing: 10) {
-					Text("步驟 1：打開新課程網")
+					Text("Step 1: 打開新課程網")
 						.font(.headline)
 					Text("登入後，進入右上角「選課結果」，並且確定出現「列表」畫面。")
 						.font(.subheadline)
@@ -75,7 +75,7 @@ struct CopyTutorialView: View {
 					
 					Divider()
 					
-					Text("步驟 2：選取文字並複製")
+					Text("Step 2: 選取文字並複製")
 						.font(.headline)
 					Text("""
 長按「選課結果」標題字樣往下複製，一路拖曳至頁面底部「沒有未選上的課程」結束，點選「複製」。
@@ -85,7 +85,7 @@ struct CopyTutorialView: View {
 					
 					Divider()
 					
-					Text("步驟 3：貼到 NTU Course2Cal")
+					Text("Step 3: 貼到 NTU Course2Cal")
 						.font(.headline)
 					Text("""
 回到 NTU Course2Cal app，在「我的課程」頁面點選「貼上課表」。

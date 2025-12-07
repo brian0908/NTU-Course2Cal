@@ -12,14 +12,58 @@ import EventKit
 import GoogleSignIn
 import GoogleSignInSwift
 
+// MARK: - Model types
+
+struct Semester: Identifiable, Codable, Equatable {
+	var id: UUID = UUID()
+	var name: String          // 例如 "114-1"
+	var startDate: Date
+	var courses: [Course]
+	var isArchived: Bool = false
+}
+
+struct GoogleCalendarEvent: Encodable {
+	struct DateTime: Encodable {
+		let dateTime: String
+		let timeZone: String
+	}
+	
+	let summary: String
+	let location: String?
+	let description: String?
+	let start: DateTime
+	let end: DateTime
+	let recurrence: [String]?
+}
+
+struct GoogleCalendarInfo: Identifiable, Decodable {
+	let id: String
+	let summary: String
+	let primary: Bool?
+}
+
+// MARK: - ViewModel
+
 @MainActor
 class CourseViewModel: ObservableObject {
+	
+	// 現在畫面上這個學期的課程
 	@Published var courses: [Course] = []
-	// 使用 AppStorage 記錄開學日與提醒設定
-	@AppStorage("semesterStartDate") var semesterStartDate: Double = Date().timeIntervalSince1970
-	@AppStorage("notifyMinutesBefore") var notifyMinutesBefore: Int = 10
+	
+	// 所有學期
+	@Published var semesters: [Semester] = []
+	@Published var currentSemesterId: UUID? = nil
+	
+	// Google 行事曆列表與選取的 calendarId
 	@Published var googleCalendars: [GoogleCalendarInfo] = []
 	@Published var selectedCalendarId: String = "primary"
+	
+	@AppStorage("semesterStartDate") var semesterStartDate: Double = Date().timeIntervalSince1970
+	@AppStorage("notifyMinutesBefore") var notifyMinutesBefore: Int = 10
+	
+	// 儲存所有學期資料用
+	@AppStorage("storedSemestersData") private var storedSemestersData: Data = Data()
+	@AppStorage("storedCurrentSemesterId") private var storedCurrentSemesterId: String = ""
 	
 	let eventStore = EKEventStore()
 	
@@ -27,26 +71,129 @@ class CourseViewModel: ObservableObject {
 		get { Date(timeIntervalSince1970: semesterStartDate) }
 		set { semesterStartDate = newValue.timeIntervalSince1970 }
 	}
-
+	
+	// 方便歷史課程頁用
+	var activeSemesters: [Semester] {
+		semesters.filter { !$0.isArchived }
+	}
+	
+	var archivedSemesters: [Semester] {
+		semesters.filter { $0.isArchived }
+	}
+	
+	// MARK: - 初始化載入
+	
+	init() {
+		loadSemestersFromStorage()
+		
+		// 如果有學期, 載入目前學期
+		if let id = currentSemesterId,
+		   let sem = semesters.first(where: { $0.id == id }) {
+			self.courses = sem.courses
+			self.startDate = sem.startDate
+		} else if let first = semesters.first {
+			// 沒有 currentId 就用第一個
+			currentSemesterId = first.id
+			storedCurrentSemesterId = first.id.uuidString
+			self.courses = first.courses
+			self.startDate = first.startDate
+		}
+	}
+	
+	// MARK: - 永久儲存學期資料
+	
+	private func saveSemestersToStorage() {
+		do {
+			let encoder = JSONEncoder()
+			encoder.dateEncodingStrategy = .iso8601
+			let data = try encoder.encode(semesters)
+			storedSemestersData = data
+			if let id = currentSemesterId {
+				storedCurrentSemesterId = id.uuidString
+			}
+		} catch {
+			print("saveSemestersToStorage error:", error)
+		}
+	}
+	
+	private func loadSemestersFromStorage() {
+		guard !storedSemestersData.isEmpty else { return }
+		do {
+			let decoder = JSONDecoder()
+			decoder.dateDecodingStrategy = .iso8601
+			let decoded = try decoder.decode([Semester].self, from: storedSemestersData)
+			self.semesters = decoded
+			
+			if let uuid = UUID(uuidString: storedCurrentSemesterId) {
+				self.currentSemesterId = uuid
+			}
+		} catch {
+			print("loadSemestersFromStorage error:", error)
+		}
+	}
+	
+	// MARK: - 學期管理
+	
+	func createSemester(name: String, startDate: Date) {
+		let newSem = Semester(name: name, startDate: startDate, courses: [])
+		semesters.append(newSem)
+		currentSemesterId = newSem.id
+		semesterStartDate = startDate.timeIntervalSince1970
+		courses = []
+		saveSemestersToStorage()
+	}
+	
+	func switchSemester(to id: UUID) {
+		guard let sem = semesters.first(where: { $0.id == id }) else { return }
+		currentSemesterId = id
+		courses = sem.courses
+		startDate = sem.startDate
+		saveSemestersToStorage()
+	}
+	
+	func saveCurrentSemesterCourses() {
+		guard let id = currentSemesterId,
+			  let index = semesters.firstIndex(where: { $0.id == id }) else { return }
+		
+		semesters[index].courses = courses
+		semesters[index].startDate = startDate
+		saveSemestersToStorage()
+	}
+	
+	func archiveCurrentSemester() {
+		guard let id = currentSemesterId,
+			  let index = semesters.firstIndex(where: { $0.id == id }) else { return }
+		
+		semesters[index].courses = courses
+		semesters[index].startDate = startDate
+		semesters[index].isArchived = true
+		
+		if let newActive = activeSemesters.first {
+			currentSemesterId = newActive.id
+			courses = newActive.courses
+			startDate = newActive.startDate
+		} else {
+			currentSemesterId = nil
+			courses = []
+		}
+		
+		saveSemestersToStorage()
+	}
+	
 	// MARK: - 雙重 Regex 解析邏輯
+	
 	func parseText(_ text: String, completion: @escaping (Bool) -> Void) {
 		DispatchQueue.global(qos: .userInitiated).async { [weak self] in
 			guard let self = self else { return }
 			var newCourses: [Course] = []
-
-			// 手機 & 電腦通用格式:
-			// name
-			// teacher
-			// time (一 1,2 或 一 A,B,C,D / 三 5,6)
-			// location
-			// 後面一整塊 details, 一直到 "已選上" 前
+			
 			let pattern =
-			"(.+)\\n" +                    // 1: 課名
-			"(.+)\\n" +                    // 2: 老師
-			"([一二三四五六日][^\\n]+)\\n" +  // 3: 時間
-			"(.+)\\n" +                    // 4: 地點
-			"([\\s\\S]*?)(?=\\n已選上|$)"     // 5: 詳細區塊 (代碼 + 學分 + 類別 + 人數 + 備註)
-
+			"(.+)\\n" +
+			"(.+)\\n" +
+			"([一二三四五六日][^\\n]+)\\n" +
+			"(.+)\\n" +
+			"([\\s\\S]*?)(?=\\n已選上|$)"
+			
 			do {
 				let regex = try NSRegularExpression(pattern: pattern, options: [])
 				let nsString = text as NSString
@@ -55,77 +202,67 @@ class CourseViewModel: ObservableObject {
 					options: [],
 					range: NSRange(location: 0, length: nsString.length)
 				)
-
+				
 				if matches.isEmpty {
-					print("⚠️ 未能解析出任何課程")
+					print("未能解析出任何課程")
 				} else {
-					print("🔍 Pattern 成功匹配到 \(matches.count) 筆資料")
+					print("Pattern 成功匹配到 \(matches.count) 筆資料")
 				}
-
+				
 				for result in matches {
-					// 1: 課名
 					let rawName = nsString.substring(with: result.range(at: 1))
 					let name = rawName
 						.components(separatedBy: .newlines)
 						.last?
 						.trimmingCharacters(in: .whitespacesAndNewlines) ?? rawName
-
-					// 2: 老師
+					
 					let teacher = nsString.substring(with: result.range(at: 2))
 						.trimmingCharacters(in: .whitespacesAndNewlines)
-
-					// 3: 時間
+					
 					let timeRaw = nsString.substring(with: result.range(at: 3))
 						.trimmingCharacters(in: .whitespacesAndNewlines)
-
-					// 4: 地點
+					
 					let location = nsString.substring(with: result.range(at: 4))
 						.trimmingCharacters(in: .whitespacesAndNewlines)
-
-					// 5: 詳細區塊 (流水號、課號、學分、人數、各種說明與備註)
+					
 					let detailsBlockRaw = nsString.substring(with: result.range(at: 5))
-
-					// 拆成一行一行，去掉空白行
+					
 					let detailLines = detailsBlockRaw
 						.components(separatedBy: .newlines)
 						.map { $0.trimmingCharacters(in: .whitespaces) }
 						.filter { !$0.isEmpty }
-
-					// 解析學分與「最後一個 XX 人」之後的備註
+					
 					var credits: Int? = nil
 					var lastPeopleIndex: Int? = nil
-
+					
 					for (idx, line) in detailLines.enumerated() {
-						// 抓學分
 						if credits == nil, line.contains("學分") {
 							let digits = line.filter { $0.isNumber }
 							if let val = Int(digits) {
 								credits = val
 							}
 						}
-
-						// 抓人數: 形式類似 "138 人"
+						
 						if line.range(of: #"^\d+\s*人$"#,
 									  options: .regularExpression) != nil {
 							lastPeopleIndex = idx
 						}
 					}
-
+					
 					var notes = ""
 					if let idx = lastPeopleIndex, idx + 1 < detailLines.count {
 						let noteLines = detailLines[(idx + 1)...]
 						notes = noteLines.joined(separator: "\n")
 					}
-
-					// 多時段 "一 A,B,C,D / 三 5,6"
+					
 					let timeSegments = timeRaw.components(separatedBy: "/")
-
+					
 					for segment in timeSegments {
 						let cleanedSegment = segment.trimmingCharacters(in: .whitespaces)
 						if cleanedSegment.isEmpty { continue }
-
+						
 						let (weekday, periods) = self.parseTime(cleanedSegment)
-
+						
 						if !periods.isEmpty {
 							newCourses.append(
 								Course(
@@ -146,16 +283,20 @@ class CourseViewModel: ObservableObject {
 			} catch {
 				print("Regex Error: \(error)")
 			}
-
+			
 			DispatchQueue.main.async {
 				self.courses = newCourses
 				let success = !newCourses.isEmpty
+				if success {
+					self.saveCurrentSemesterCourses()
+				}
 				completion(success)
 			}
 		}
 	}
 	
 	// MARK: - 時間解析 Helper
+	
 	nonisolated func parseTime(_ raw: String) -> (Int, [Int]) {
 		var weekday = 2
 		var periods: [Int] = []
@@ -188,13 +329,16 @@ class CourseViewModel: ObservableObject {
 		}
 		return (weekday, periods)
 	}
-
-	// MARK: - 資料管理 (修復 Crash)
+	
+	// MARK: - 資料管理
+	
 	func clearCourses() {
 		courses.removeAll()
+		saveCurrentSemesterCourses()
 	}
-
-	// MARK: - 匯出至行事曆
+	
+	// MARK: - 匯出至 Apple 行事曆
+	
 	func exportToCalendar(completion: @escaping (Bool, String) -> Void) {
 		let handler: @Sendable (Bool, Error?) -> Void = { [weak self] granted, error in
 			guard let self = self else { return }
@@ -207,7 +351,7 @@ class CourseViewModel: ObservableObject {
 				completion(false, "沒有行事曆權限")
 			}
 		}
-
+		
 		if #available(iOS 17.0, *) {
 			eventStore.requestFullAccessToEvents(completion: handler)
 		} else {
@@ -236,7 +380,11 @@ class CourseViewModel: ObservableObject {
 			event.addAlarm(EKAlarm(relativeOffset: TimeInterval(-notifyMinutesBefore * 60)))
 		}
 		
-		let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: EKRecurrenceEnd(occurrenceCount: 16))
+		let rule = EKRecurrenceRule(
+			recurrenceWith: .weekly,
+			interval: 1,
+			end: EKRecurrenceEnd(occurrenceCount: 16)
+		)
 		event.addRecurrenceRule(rule)
 		
 		do {
@@ -261,6 +409,7 @@ class CourseViewModel: ObservableObject {
 		
 		return formatter.date(from: fullString)
 	}
+	
 	private func rfc3339String(from date: Date) -> String {
 		let formatter = ISO8601DateFormatter()
 		formatter.timeZone = TimeZone.current
@@ -270,54 +419,50 @@ class CourseViewModel: ObservableObject {
 		]
 		return formatter.string(from: date)
 	}
-	// MARK: - 匯出到 Google Calendar（簡單版，使用 selectedCalendarId）
+	
+	// MARK: - 匯出到 Google Calendar (簡單版, 使用 selectedCalendarId)
+	
 	func exportToGoogleCalendar(using signInManager: GoogleSignInManager) async -> (Bool, String) {
-		// 1. 檢查是否登入
 		guard let user = signInManager.user else {
 			return (false, "請先在「設定」頁登入 Google 帳號")
 		}
-
-		// 2. 取得 access token
+		
 		let accessToken = user.accessToken.tokenString
 		if accessToken.isEmpty {
 			return (false, "找不到 Google 存取權杖")
 		}
-
-		// 3. 只匯出有勾選的課
+		
 		let selectedCourses = courses.filter { $0.isSelected }
 		if selectedCourses.isEmpty {
 			return (false, "沒有勾選要匯出的課程")
 		}
-
+		
 		let calendarId = selectedCalendarId.isEmpty ? "primary" : selectedCalendarId
 		let urlString = "https://www.googleapis.com/calendar/v3/calendars/\(calendarId)/events"
 		guard let url = URL(string: urlString) else {
 			return (false, "Google Calendar API URL 錯誤")
 		}
-
+		
 		let timeZoneId = TimeZone.current.identifier
 		var successCount = 0
 		var failCount = 0
-
+		
 		for course in selectedCourses {
-			// 4. 算第一堂課日期
-			guard let startDate = calculateDate(weekday: course.weekday,
-												periods: course.periods) else {
+			guard let startDate = calculateDate(weekday: course.weekday, periods: course.periods) else {
 				failCount += 1
 				continue
 			}
-
+			
 			let duration = TimeInterval(50 * 60 * course.periods.count)
 			let endDate = startDate.addingTimeInterval(duration)
-
-			// 5. 組 event body
+			
 			let descLines: [String] = [
 				"授課老師：\(course.teacher)",
 				course.notes.isEmpty ? nil : course.notes
 			].compactMap { $0 }
-
+			
 			let description = descLines.joined(separator: "\n\n")
-
+			
 			let event = GoogleCalendarEvent(
 				summary: course.name,
 				location: course.location.isEmpty ? nil : course.location,
@@ -332,18 +477,18 @@ class CourseViewModel: ObservableObject {
 				),
 				recurrence: ["RRULE:FREQ=WEEKLY;COUNT=16"]
 			)
-
+			
 			do {
 				var request = URLRequest(url: url)
 				request.httpMethod = "POST"
 				request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
 				request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-
+				
 				let encoder = JSONEncoder()
 				request.httpBody = try encoder.encode(event)
-
+				
 				let (_, response) = try await URLSession.shared.data(for: request)
-
+				
 				if let http = response as? HTTPURLResponse,
 				   (200..<300).contains(http.statusCode) {
 					successCount += 1
@@ -355,7 +500,7 @@ class CourseViewModel: ObservableObject {
 				failCount += 1
 			}
 		}
-
+		
 		if successCount > 0 && failCount == 0 {
 			return (true, "成功匯出 \(successCount) 堂課到 Google 行事曆")
 		} else if successCount > 0 {
@@ -364,26 +509,27 @@ class CourseViewModel: ObservableObject {
 			return (false, "匯出到 Google 行事曆失敗")
 		}
 	}
-
-	// 讀取使用者 Google 行事曆列表，填到 googleCalendars / selectedCalendarId
+	
+	// MARK: - Google Calendar 列表 (設定頁用)
+	
 	func loadGoogleCalendars(using signInManager: GoogleSignInManager) async -> (Bool, String) {
 		guard let user = signInManager.user else {
 			return (false, "請先在設定頁登入 Google 帳號")
 		}
-
+		
 		let accessToken = user.accessToken.tokenString
 		guard !accessToken.isEmpty else {
 			return (false, "找不到 Google 存取權杖")
 		}
-
+		
 		guard let url = URL(string: "https://www.googleapis.com/calendar/v3/users/me/calendarList") else {
 			return (false, "Google Calendar API URL 錯誤")
 		}
-
+		
 		var request = URLRequest(url: url)
 		request.httpMethod = "GET"
 		request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-
+		
 		do {
 			let (data, response) = try await URLSession.shared.data(for: request)
 			guard let http = response as? HTTPURLResponse,
@@ -391,17 +537,15 @@ class CourseViewModel: ObservableObject {
 				let code = (response as? HTTPURLResponse)?.statusCode ?? -1
 				return (false, "讀取日曆列表失敗（\(code)）")
 			}
-
+			
 			struct CalendarListResponse: Decodable {
 				let items: [GoogleCalendarInfo]
 			}
-
+			
 			let decoded = try JSONDecoder().decode(CalendarListResponse.self, from: data)
-
-			// 更新到畫面
+			
 			self.googleCalendars = decoded.items
-
-			// 預設選 primary，找不到就選第一個
+			
 			if let primary = decoded.items.first(where: { $0.primary == true }) {
 				self.selectedCalendarId = primary.id
 			} else if let first = decoded.items.first {
@@ -409,20 +553,16 @@ class CourseViewModel: ObservableObject {
 			} else {
 				self.selectedCalendarId = "primary"
 			}
-
+			
 			return (true, "已載入 \(decoded.items.count) 個日曆")
 		} catch {
 			print("loadGoogleCalendars error:", error)
 			return (false, "讀取日曆列表發生錯誤")
 		}
 	}
-}
-
-// MARK: - Google Calendar 進階功能（extension）
-
-extension CourseViewModel {
 	
-// 列出使用者所有行事曆
+	// MARK: - Google Calendar 進階功能
+	
 	func fetchGoogleCalendars(using manager: GoogleSignInManager) async -> [GoogleCalendarInfo] {
 		guard let token = manager.accessToken else {
 			print("No Google access token")
@@ -455,31 +595,30 @@ extension CourseViewModel {
 			return []
 		}
 	}
-
-	// 建立新的行事曆，名稱由使用者輸入
+	
 	func createGoogleCalendar(named name: String,
 							  using manager: GoogleSignInManager) async -> GoogleCalendarInfo? {
 		guard let token = manager.accessToken else {
 			print("No Google access token")
 			return nil
 		}
-
+		
 		guard let url = URL(string: "https://www.googleapis.com/calendar/v3/calendars") else {
 			return nil
 		}
-
+		
 		var request = URLRequest(url: url)
 		request.httpMethod = "POST"
 		request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 		request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-
+		
 		let body: [String: Any] = [
 			"summary": name,
 			"timeZone": "Asia/Taipei"
 		]
-
+		
 		request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
-
+		
 		do {
 			let (data, response) = try await URLSession.shared.data(for: request)
 			guard let http = response as? HTTPURLResponse,
@@ -496,49 +635,46 @@ extension CourseViewModel {
 			return nil
 		}
 	}
-
-	// 進階版：明確指定 calendarID 與週數
+	
 	func exportToGoogleCalendar(using manager: GoogleSignInManager,
 								calendarID: String,
 								weeks: Int = 16) async -> (Bool, String) {
 		guard let token = manager.accessToken else {
 			return (false, "請先在設定頁登入 Google 帳號")
 		}
-
-		// 沒課就不用匯
+		
 		let targets = courses.filter { $0.isSelected }
 		if targets.isEmpty {
 			return (false, "目前沒有選取要匯出的課程")
 		}
-
-		// 日期格式 RFC3339
+		
 		let formatter = ISO8601DateFormatter()
 		formatter.formatOptions = [.withInternetDateTime]
 		formatter.timeZone = TimeZone(identifier: "Asia/Taipei")
-
+		
 		for course in targets {
 			guard let firstDate = calculateDate(weekday: course.weekday, periods: course.periods) else {
 				continue
 			}
-
+			
 			let duration = TimeInterval(50 * 60 * course.periods.count)
 			let endDate = firstDate.addingTimeInterval(duration)
-
+			
 			let startString = formatter.string(from: firstDate)
 			let endString = formatter.string(from: endDate)
-
+			
 			var recurrence: [String] = []
 			if weeks > 0 {
 				recurrence = ["RRULE:FREQ=WEEKLY;COUNT=\(weeks)"]
 			}
-
+			
 			let description = """
 			授課老師：\(course.teacher)
 			上課時間：\(course.rawTime)
-
+			
 			\(course.notes)
 			"""
-
+			
 			let eventBody: [String: Any] = [
 				"summary": course.name,
 				"location": course.location,
@@ -553,17 +689,17 @@ extension CourseViewModel {
 				],
 				"recurrence": recurrence
 			]
-
+			
 			guard let url = URL(string: "https://www.googleapis.com/calendar/v3/calendars/\(calendarID)/events") else {
 				continue
 			}
-
+			
 			var request = URLRequest(url: url)
 			request.httpMethod = "POST"
 			request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 			request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
 			request.httpBody = try? JSONSerialization.data(withJSONObject: eventBody, options: [])
-
+			
 			do {
 				let (_, response) = try await URLSession.shared.data(for: request)
 				guard let http = response as? HTTPURLResponse,
@@ -573,33 +709,24 @@ extension CourseViewModel {
 				}
 			} catch {
 				print("Add event error: \(error)")
-				continue
 			}
 		}
-
+		
 		return (true, "已匯出課程到 Google 行事曆")
 	}
-}
-
-	// MARK: - Google Calendar model
-
-	struct GoogleCalendarEvent: Encodable {
-		struct DateTime: Encodable {
-			let dateTime: String
-			let timeZone: String
+	func deleteCourses(_ targets: [Course], inSemesterId semesterId: UUID) {
+		guard let idx = semesters.firstIndex(where: { $0.id == semesterId }) else { return }
+		
+		semesters[idx].courses.removeAll { course in
+			targets.contains(course)
 		}
-
-		let summary: String
-		let location: String?
-		let description: String?
-		let start: DateTime
-		let end: DateTime
-		let recurrence: [String]?
+		
+		// 如果剛好是目前學期也要同步更新畫面上的 courses
+		if semesterId == currentSemesterId {
+			courses = semesters[idx].courses
+		}
+		
+		saveSemestersToStorage()
 	}
-
-	struct GoogleCalendarInfo: Identifiable, Decodable {
-		let id: String
-		let summary: String
-		let primary: Bool?
-	}
+}
 

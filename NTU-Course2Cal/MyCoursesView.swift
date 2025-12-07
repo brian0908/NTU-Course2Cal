@@ -21,9 +21,8 @@ struct CourseGroup: Identifiable {
 struct MyCoursesView: View {
 	@EnvironmentObject var viewModel: CourseViewModel
 	@State private var showInputSheet = false
-	@State private var expandedGroupId: String? = nil   // 控制哪一張卡片展開
+	@State private var expandedGroupId: String? = nil
 
-	// 依課名 + 老師 + 地點 + rawTime 合併成一個 group
 	private var groupedCourses: [CourseGroup] {
 		let dict = Dictionary(grouping: viewModel.courses) { course in
 			course.name + "|" + course.teacher + "|" + course.location + "|" + course.rawTime
@@ -43,7 +42,6 @@ struct MyCoursesView: View {
 				)
 			}
 			
-			// 把這個 group 裡每個 course 在 viewModel.courses 的 index 抓出來
 			let indices = list.compactMap { course in
 				viewModel.courses.firstIndex(of: course)
 			}
@@ -72,47 +70,25 @@ struct MyCoursesView: View {
 						Image(systemName: "doc.on.clipboard")
 							.font(.system(size: 60))
 							.foregroundColor(.gray)
-						Text("尚未匯入課程")
+						Label("快匯入本學期的課程吧！", systemImage: "hand.point.down")
 							.font(.title3)
 							.foregroundColor(.secondary)
-						Button("貼上課表") { showInputSheet = true }
+						Button("匯入課表") { showInputSheet = true }
 							.buttonStyle(.glassProminent)
 							.fontWeight(.semibold)
 					}
 				} else {
-					ScrollView {
-						LazyVStack(spacing: 16) {
-							ForEach(groupedCourses) { group in
-								// 這裡用 Binding 控制這個 group 底下所有課程的 isSelected
-								CourseGroupCard(
-									group: group,
-									isSelected: Binding(
-										get: {
-											// 防呆：確保 index 在合法範圍內
-											let validIndices = group.indices.filter { $0 < viewModel.courses.count }
-											guard !validIndices.isEmpty else { return false }
-											return validIndices.allSatisfy { idx in
-												viewModel.courses[idx].isSelected
-											}
-										},
-										set: { newValue in
-											let validIndices = group.indices.filter { $0 < viewModel.courses.count }
-											for idx in validIndices {
-												viewModel.courses[idx].isSelected = newValue
-											}
-										}
-									),
-									isExpanded: Binding(
-										get: { expandedGroupId == group.id },
-										set: { newVal in
-											expandedGroupId = newVal ? group.id : nil
-										}
-									)
-								)
-							}
+					List {
+						ForEach(groupedCourses) { group in
+							CourseGroupRow(
+								group: group,
+								expandedGroupId: $expandedGroupId
+							)
 						}
-						.padding()
 					}
+					.scrollContentBackground(.hidden)
+					.listStyle(.plain)
+					.animation(.easeInOut(duration: 0.2), value: expandedGroupId)
 				}
 			}
 			.navigationTitle("我的課程")
@@ -133,7 +109,8 @@ struct CourseGroupCard: View {
 	let group: CourseGroup
 	@Binding var isSelected: Bool
 	@Binding var isExpanded: Bool
-	
+	var showsToggle: Bool = true        // 新增
+
 	var body: some View {
 		VStack(alignment: .leading, spacing: 8) {
 			HStack {
@@ -146,14 +123,20 @@ struct CourseGroupCard: View {
 						.font(.subheadline)
 						.foregroundColor(.secondary)
 					
-					Label(group.location, systemImage: "location")
-						.font(.caption)
-						.foregroundColor(.gray)
+					HStack(spacing: 3) {
+						Image(systemName: "location")
+						Text(group.location)
+					}
+					.font(.caption)
+					.foregroundColor(.gray)
 					
 					if let credits = group.credits {
-						Label(" \(credits) 學分", systemImage: "book.closed")
-							.font(.caption)
-							.foregroundColor(.secondary)
+						HStack(spacing: 3) {
+							Image(systemName: "book.closed")
+							Text(" \(credits) 學分")
+						}
+						.font(.caption)
+						.foregroundColor(.secondary)
 					}
 				}
 				
@@ -167,29 +150,30 @@ struct CourseGroupCard: View {
 						.background(Color(red: 229/255, green: 236/255, blue: 248/255))
 						.cornerRadius(5)
 					
-					Toggle("匯入", isOn: $isSelected)
-						.labelsHidden()
-						.scaleEffect(0.8)
+					if showsToggle {          // 只有需要時才顯示 toggle
+						VStack(spacing: 3) {
+
+							Toggle("", isOn: $isSelected)
+								.labelsHidden()
+								.scaleEffect(0.8)
+								.onTapGesture { }   // 避免事件往外傳
+							Text("匯出")
+								.font(.caption)
+								.foregroundColor(.ntuBlue)
+								.fontWeight(.semibold)
+						}
+					}
 				}
 			}
 			
-			// 展開按鈕
-			Button {
-				withAnimation(.easeInOut) {
-					isExpanded.toggle()
-				}
-			} label: {
-				Image(systemName: "chevron.up")
-					.font(.caption)
-					.rotationEffect(.degrees(isExpanded ? 0 : 180))
-					.foregroundColor(Color(red: 0/255, green: 75/255, blue: 151/255))
-			}
-			.buttonStyle(.plain)
+			Image(systemName: "chevron.up")
+				.font(.caption)
+				.rotationEffect(.degrees(isExpanded ? 0 : 180))
+				.foregroundColor(Color(red: 0/255, green: 75/255, blue: 151/255))
+				.padding(.top, 4)
 			
 			if isExpanded {
 				VStack(alignment: .leading, spacing: 6) {
-					
-					// 上課時間
 					let lines = timeLines(for: group.rawTime)
 					if !lines.isEmpty {
 						Divider().padding(.vertical, 4)
@@ -200,11 +184,9 @@ struct CourseGroupCard: View {
 							Text(line)
 								.font(.caption)
 								.foregroundColor(.secondary)
-								.fixedSize(horizontal: false, vertical: true)
 						}
 					}
 					
-					// 備註
 					if !group.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
 						Divider().padding(.vertical, 4)
 						Text("備註")
@@ -213,16 +195,92 @@ struct CourseGroupCard: View {
 						Text(group.notes)
 							.font(.caption)
 							.foregroundColor(.secondary)
-							.fixedSize(horizontal: false, vertical: true)
 					}
 				}
-				.transition(.opacity.combined(with: .slide))
+				.transition(
+					.asymmetric(
+						insertion: .push(from: .top).combined(with: .opacity),
+						removal:   .push(from: .bottom).combined(with: .opacity)
+					)
+				)
 			}
 		}
 		.padding()
 		.background(Color.white)
 		.cornerRadius(12)
 		.shadow(radius: 2)
+		.contentShape(Rectangle())
+		.onTapGesture {
+			withAnimation(.easeInOut(duration: 0.2)) {
+				isExpanded.toggle()
+			}
+		}
+	}
+}
+
+struct CourseGroupRow: View {
+	@EnvironmentObject var viewModel: CourseViewModel
+	let group: CourseGroup
+	@Binding var expandedGroupId: String?
+	
+	// group 的「全部勾選」狀態 binding
+	private var isSelectedBinding: Binding<Bool> {
+		Binding(
+			get: {
+				for idx in group.indices {
+					if !viewModel.courses.indices.contains(idx) { return false }
+					if !viewModel.courses[idx].isSelected { return false }
+				}
+				return !group.indices.isEmpty
+			},
+			set: { newValue in
+				for idx in group.indices {
+					if viewModel.courses.indices.contains(idx) {
+						viewModel.courses[idx].isSelected = newValue
+					}
+				}
+				viewModel.saveCurrentSemesterCourses()
+			}
+		)
+	}
+	
+	// 展開狀態 binding
+	private var isExpandedBinding: Binding<Bool> {
+		Binding(
+			get: { expandedGroupId == group.id },
+			set: { newVal in
+				expandedGroupId = newVal ? group.id : nil
+			}
+		)
+	}
+	
+	var body: some View {
+		CourseGroupCard(
+			group: group,
+			isSelected: isSelectedBinding,
+			isExpanded: isExpandedBinding,
+			showsToggle: true
+		)
+		.listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+		.listRowBackground(Color.clear)
+		.listRowSeparator(.hidden)
+		.swipeActions(edge: .trailing, allowsFullSwipe: true) {
+			
+			// Delete: 整組刪掉
+			Button(role: .destructive) {
+				let targets = group.indices.compactMap { idx -> Course? in
+					guard viewModel.courses.indices.contains(idx) else { return nil }
+					return viewModel.courses[idx]
+				}
+				viewModel.courses.removeAll { course in
+					targets.contains(course)
+				}
+				viewModel.saveCurrentSemesterCourses()
+			} label: {
+				Label("刪除", systemImage: "trash")
+			}
+			.tint(.red)
+		}
 	}
 }
 

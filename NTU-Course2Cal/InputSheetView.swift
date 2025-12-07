@@ -18,18 +18,56 @@ struct InputSheetView: View {
 	@State private var showConfetti = false
 	@State private var isParsing = false
 	@State private var showParseError = false
+	@State private var showNeedSemesterAlert = false
 	
 	var body: some View {
 		ZStack {
 			NavigationStack {
 				Form {
+					Section("學期設定") {
+						// 顯示目前學期
+						if let currentId = viewModel.currentSemesterId,
+						   let sem = viewModel.semesters.first(where: { $0.id == currentId }) {
+							Text("目前學期：\(sem.name)")
+								.font(.headline)
+								.fontWeight(.semibold)
+								.foregroundColor(.ntuBlue)
+						} else {
+							Text("目前尚未選擇學期")
+								.font(.subheadline)
+								.foregroundColor(.secondary)
+						}
+						
+						// 列出所有 active 學期讓使用者切換
+						if !viewModel.activeSemesters.isEmpty {
+							Picker("切換學期", selection: Binding(
+								get: { viewModel.currentSemesterId },
+								set: { newId in
+									if let id = newId {
+										viewModel.switchSemester(to: id)
+									}
+								}
+							)) {
+								ForEach(viewModel.activeSemesters) { sem in
+									Text(sem.name).tag(Optional(sem.id))
+								}
+							}
+						}
+						
+						// 建立新學期
+						NavigationLink("建立新學期") {
+							NewSemesterView()
+								.environmentObject(viewModel)
+						}.fontWeight(.semibold)
+							.foregroundColor(.ntuBlue)
+					}
 					// 必要設定
-					Section(header: Text("必要設定")) {
+					Section(header: Text("開學日設定")) {
 						DatePicker(
 							"開學第一天",
 							selection: $viewModel.startDate,
 							displayedComponents: .date
-						)
+						).fontWeight(.semibold)
 						.tint(Color(red: 0/255, green: 75/255, blue: 151/255))
 					}
 					
@@ -37,6 +75,12 @@ struct InputSheetView: View {
 					Section(header: Text("貼上選課結果")) {
 						VStack(alignment: .leading, spacing: 12) {
 							Button {
+								// 先檢查有沒有選學期
+								guard viewModel.currentSemesterId != nil else {
+									showNeedSemesterAlert = true
+									return
+								}
+								
 								if let pasted = UIPasteboard.general.string {
 									inputText = pasted
 								} else {
@@ -50,13 +94,17 @@ struct InputSheetView: View {
 								}
 							}
 							.buttonStyle(.glassProminent)
+							.disabled(viewModel.currentSemesterId == nil)   // 按鈕視覺上變成不可用
 							
-							if inputText.isEmpty {
+							if viewModel.currentSemesterId == nil {
+								Text("請先選擇或建立一個學期，再貼上課程列表。")
+									.font(.footnote)
+									.foregroundColor(.red)
+							} else if inputText.isEmpty {
 								Text("目前沒有內容，請先到臺大課程網複製課程列表，再按上方按鈕貼上。")
 									.font(.footnote)
 									.foregroundColor(.gray)
 							} else {
-								// 只讀預覽區，高度固定，內容在裡面捲動
 								ScrollView {
 									Text(inputText)
 										.font(.system(size: 13, design: .monospaced))
@@ -66,36 +114,12 @@ struct InputSheetView: View {
 								.background(Color(.secondarySystemBackground))
 								.cornerRadius(8)
 							}
-							
-							// 新增：快速前往課程網與教學
-							VStack(alignment: .leading, spacing: 8) {
-								Button {
-									if let url = URL(string: "https://course.ntu.edu.tw/result/final/list") {
-										openURL(url)
-									}
-								} label: {
-									HStack {
-										Image(systemName: "safari")
-										Text("開啟臺大課程網")
-									}
-									.frame(maxWidth: .infinity)
-								}
-								.buttonStyle(.bordered)
-								
-								NavigationLink {
-									CopyTutorialView()
-								} label: {
-									HStack {
-										Image(systemName: "questionmark.circle")
-										Text("查看複製課表教學")
-									}
-									.frame(maxWidth: .infinity, alignment: .trailing)
-									.font(.caption)
-								}
-								.buttonStyle(.bordered)
-							}
-							.padding(.top, 4)
 						}
+					}
+					.alert("請先選擇學期", isPresented: $showNeedSemesterAlert) {
+						Button("OK", role: .cancel) { }
+					} message: {
+						Text("請先在學期設定處選擇或建立一個學期，再匯入課程。")
 					}
 					
 					// 解析按鈕

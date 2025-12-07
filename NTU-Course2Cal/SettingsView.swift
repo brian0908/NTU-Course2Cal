@@ -14,10 +14,64 @@ struct SettingsView: View {
 	@EnvironmentObject var viewModel: CourseViewModel
 	@EnvironmentObject var signInManager: GoogleSignInManager
 	@State private var showingClearConfirm = false
+	@State private var showingArchiveConfirm = false
 	
 	var body: some View {
 		NavigationStack {
 			Form {
+				Section("學期管理") {
+					// 顯示目前學期
+					if let currentId = viewModel.currentSemesterId,
+					   let sem = viewModel.semesters.first(where: { $0.id == currentId }) {
+						Text("目前學期：\(sem.name)")
+							.font(.headline)
+							.fontWeight(.semibold)
+							.foregroundColor(.ntuBlue)
+					} else {
+						Text("目前尚未選擇學期")
+							.font(.subheadline)
+							.foregroundColor(.secondary)
+					}
+					
+					// 列出所有 active 學期讓使用者切換
+					if !viewModel.activeSemesters.isEmpty {
+						Picker("切換學期", selection: Binding(
+							get: { viewModel.currentSemesterId },
+							set: { newId in
+								if let id = newId {
+									viewModel.switchSemester(to: id)
+								}
+							}
+						)) {
+							ForEach(viewModel.activeSemesters) { sem in
+								Text(sem.name).tag(Optional(sem.id))
+							}
+						}
+					}
+					
+					// 建立新學期
+					NavigationLink("建立新學期") {
+						NewSemesterView()
+							.environmentObject(viewModel)
+					}.fontWeight(.semibold)
+						.foregroundColor(.ntuBlue)
+					
+					if viewModel.currentSemesterId != nil {
+						Button("將目前學期移至歷史課程") {
+							showingArchiveConfirm = true
+						}
+						.foregroundColor(.red)
+						.fontWeight(.semibold)
+						.alert("確定要將本學期移至歷史課程嗎？", isPresented: $showingArchiveConfirm) {
+							Button("移至歷史課程", role: .destructive) {
+								viewModel.archiveCurrentSemester()
+							}
+							Button("取消", role: .cancel) { }
+						} message: {
+							Text("此動作無法復原，且課程將不可再編輯。")
+					}
+					}
+				}
 				// 原本的學期設定
 				Section(header: Text("日期設定")) {
 					DatePicker("本學期開學第一天",

@@ -243,7 +243,7 @@ struct WeeklyScheduleView: View {
 	// 判斷該格子顯示什麼（有課就可以點，跳出 CourseGroupCard）
 	@ViewBuilder
 	private func cellFor(weekday: Int, period: Int) -> some View {
-		if let match = viewModel.courses.first(where: { $0.weekday == weekday && $0.periods.contains(period) }) {
+		if let match = viewModel.courses.first(where: { $0.isSelected && $0.weekday == weekday && $0.periods.contains(period) }) {
 			Rectangle()
 				.fill(Color(red: 0/255, green: 75/255, blue: 151/255).opacity(0.8))
 				.overlay(

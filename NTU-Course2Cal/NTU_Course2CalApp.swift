@@ -40,7 +40,10 @@ struct MainTabView: View {
 				.tabItem {
 					Label("課表檢視", systemImage: "calendar")
 				}
-			
+			HistoryCoursesView()
+							.tabItem {
+								Label("歷史課程", systemImage: "clock.arrow.circlepath")
+							}
 			SettingsView()
 				.tabItem {
 					Label("設定", systemImage: "gearshape")
