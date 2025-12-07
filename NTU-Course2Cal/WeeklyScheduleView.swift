@@ -255,6 +255,7 @@ struct WeeklyScheduleView: View {
 						.foregroundColor(.white)
 						.multilineTextAlignment(.center)
 						.padding(2)
+						.fontWeight(.semibold)
 				)
 				.frame(height: 50)
 				.cornerRadius(5)

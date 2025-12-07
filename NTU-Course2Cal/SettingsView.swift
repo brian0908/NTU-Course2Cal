@@ -12,6 +12,7 @@ import UIKit
 import UserNotifications
 
 struct SettingsView: View {
+	@State private var showingResetAllConfirm = false
 	@EnvironmentObject var viewModel: CourseViewModel
 	@EnvironmentObject var signInManager: GoogleSignInManager
 	@State private var showingClearConfirm = false
@@ -74,7 +75,7 @@ struct SettingsView: View {
 							.fontWeight(.semibold)
 							.foregroundColor(.ntuBlue)
 					} else {
-						Text("目前尚未選擇學期")
+						Text("目前尚未建立學期")
 							.font(.subheadline)
 							.foregroundColor(.secondary)
 					}
@@ -93,6 +94,7 @@ struct SettingsView: View {
 								Text(sem.name).tag(Optional(sem.id))
 							}
 						}
+						.fontWeight(.semibold)
 					}
 					
 					// 建立新學期
@@ -114,11 +116,20 @@ struct SettingsView: View {
 					)
 					
 					if viewModel.currentSemesterId != nil {
-						Button("將目前學期移至歷史課程") {
+						Button {
 							showingArchiveConfirm = true
+						} label: {
+							HStack {
+								Image(systemName: "archivebox.fill")
+								Text("將目前學期移至歷史課程")
+									.fontWeight(.semibold)
+									.font(.caption)
+							}
 						}
-						.foregroundColor(.red)
+						.foregroundColor(.white)
+						.listRowBackground(Color(red: 191/255, green: 10/255, blue: 30/255))
 						.fontWeight(.semibold)
+						.frame(maxWidth: .infinity, alignment: .center)
 						.alert("確定要將本學期移至歷史課程嗎？", isPresented: $showingArchiveConfirm) {
 							Button("移至歷史課程", role: .destructive) {
 								viewModel.archiveCurrentSemester()
@@ -155,11 +166,22 @@ struct SettingsView: View {
 						
 						// 載入日曆列表按鈕
 						if viewModel.googleCalendars.isEmpty {
-							Button("載入我的日曆") {
+							Button {
 								Task {
 									_ = await viewModel.loadGoogleCalendars(using: signInManager)
 								}
+							} label: {
+								HStack {
+									Image(systemName: "calendar.badge.plus")
+									Text("載入我的日曆")
+										.fontWeight(.semibold)
+								}
 							}.fontWeight(.semibold)
+								.foregroundColor(.white)
+								.listRowBackground(
+									Color(red: 0/255, green: 75/255, blue: 151/255))
+								.frame(maxWidth: .infinity, alignment: .center)
+							
 						} else {
 							// 選擇要匯入的日曆
 							Picker("預設匯入日曆", selection: $viewModel.selectedCalendarId) {
@@ -170,13 +192,21 @@ struct SettingsView: View {
 							}
 						}
 						
-						Button("登出 Google") {
+						Button {
 							signInManager.signOut()
 							viewModel.googleCalendars = []
 							viewModel.selectedCalendarId = "primary"
+						} label: {
+							HStack {
+								Image(systemName: "rectangle.portrait.and.arrow.right")
+								Text("登出 Google")
+									.fontWeight(.semibold)
+							}
 						}
-						.foregroundColor(.red)
+						.foregroundColor(.white)
+						.listRowBackground(Color(red: 191/255, green: 10/255, blue: 30/255))
 						.fontWeight(.semibold)
+						.frame(maxWidth: .infinity, alignment: .center)
 					} else {
 						GoogleSignInButton {
 							let vc = rootViewController()
@@ -247,20 +277,26 @@ struct SettingsView: View {
 				}
 				
 				Section {
-					Button("清除 App 內儲存所有課程資料", role: .destructive) {
-						showingClearConfirm = true
+					Button {
+						showingResetAllConfirm = true
+					} label: {
+						HStack {
+							Image(systemName: "trash.fill")
+							Text("清除全部資料")
+								.fontWeight(.semibold)
+						}
 					}
-					.fontWeight(.bold)
+					.foregroundColor(.white)
+					.listRowBackground(Color(red: 191/255, green: 10/255, blue: 30/255))
 					.frame(maxWidth: .infinity, alignment: .center)
-					
 				}
-				.alert("確定要清除所有課程嗎？", isPresented: $showingClearConfirm) {
+				.alert("確定要清除全部資料嗎？", isPresented: $showingResetAllConfirm) {
 					Button("清除", role: .destructive) {
-						viewModel.clearCourses()
+						viewModel.resetAllData()
 					}
 					Button("取消", role: .cancel) { }
 				} message: {
-					Text("此動作無法復原。")
+					Text("包含目前學期與歷史課程的所有資料都會被刪除，此動作無法復原。")
 				}
 				
 				

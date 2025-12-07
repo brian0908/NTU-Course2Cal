@@ -85,6 +85,8 @@ class CourseViewModel: ObservableObject {
 		semesters.filter { $0.isArchived }
 	}
 	
+	
+	
 	// MARK: - 初始化載入
 	
 	init() {
@@ -622,6 +624,7 @@ class CourseViewModel: ObservableObject {
 		}
 	}
 	
+	
 	// MARK: - Google Calendar 列表 (設定頁用)
 	
 	func loadGoogleCalendars(using signInManager: GoogleSignInManager) async -> (Bool, String) {
@@ -867,6 +870,7 @@ class CourseViewModel: ObservableObject {
 			scheduleNotifications(for: course, center: center)
 		}
 	}
+	
 
 	/// 為單一課程排 16 週的提醒（你可以依學期長度調整）
 	private func scheduleNotifications(for course: Course,
@@ -913,6 +917,20 @@ class CourseViewModel: ObservableObject {
 				}
 			}
 		}
+	}
+	func resetAllData() {
+		// 清掉記憶體中的資料
+		courses.removeAll()
+		semesters.removeAll()
+		currentSemesterId = nil
+		
+		// 清掉 UserDefaults 裡的 AppStorage
+		storedSemestersData = Data()
+		storedCurrentSemesterId = ""
+		
+		// 開學日、通知時間可以看你要不要也一起重置
+		// 例如:
+		// semesterStartDate = Date().timeIntervalSince1970
 	}
 }
 

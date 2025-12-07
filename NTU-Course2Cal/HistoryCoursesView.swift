@@ -13,9 +13,8 @@ struct HistoryCoursesView: View {
 	@State private var selectedSemesterId: UUID?
 	@State private var expandedGroupId: String? = nil
 	
-	// 只取已封存的學期
 	private var archivedSemesters: [Semester] {
-		viewModel.semesters.filter { $0.isArchived }
+		viewModel.semesters.filter { $0.isArchived && !$0.courses.isEmpty }
 	}
 	
 	// 目前選到的學期
@@ -83,19 +82,18 @@ struct HistoryCoursesView: View {
 					}
 				} else {
 					VStack {
-						// 學期選擇器
-						if archivedSemesters.count > 1 {
-							Picker("學期", selection: Binding(
-								get: { selectedSemesterId ?? archivedSemesters.first!.id },
-								set: { selectedSemesterId = $0 }
-							)) {
-								ForEach(archivedSemesters) { sem in
-									Text(sem.name).tag(sem.id)
-								}
+						// 學期選擇器，不管幾個學期都顯示 segmented tab
+						Picker("學期", selection: Binding(
+							get: { selectedSemesterId ?? archivedSemesters.first!.id },
+							set: { selectedSemesterId = $0 }
+						)) {
+							ForEach(archivedSemesters) { sem in
+								Text(sem.name).tag(sem.id)
 							}
-							.pickerStyle(.segmented)
-							.padding([.horizontal, .top])
 						}
+						.pickerStyle(.segmented)
+						.padding([.horizontal, .top])
+						.disabled(archivedSemesters.count <= 1)   // 只有一學期時讓它看起來像標籤
 						
 						if historyCourses.isEmpty {
 							Spacer()
