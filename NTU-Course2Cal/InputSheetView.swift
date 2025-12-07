@@ -14,73 +14,27 @@ struct InputSheetView: View {
 	@Environment(\.dismiss) var dismiss
 	@EnvironmentObject var viewModel: CourseViewModel
 	@Environment(\.openURL) private var openURL
+	
 	@State private var inputText: String = ""
 	@State private var showConfetti = false
 	@State private var isParsing = false
 	@State private var showParseError = false
-	@State private var showNeedSemesterAlert = false
-	
+	@State private var showNeedSemesterAlert = false   // 如果還沒有的話要加這個
+
 	var body: some View {
 		ZStack {
 			NavigationStack {
 				Form {
-					Section("學期設定") {
-						// 顯示目前學期
-						if let currentId = viewModel.currentSemesterId,
-						   let sem = viewModel.semesters.first(where: { $0.id == currentId }) {
-							Text("目前學期：\(sem.name)")
-								.font(.headline)
-								.fontWeight(.semibold)
-								.foregroundColor(.ntuBlue)
-						} else {
-							Text("目前尚未選擇學期")
-								.font(.subheadline)
-								.foregroundColor(.secondary)
-						}
-						
-						// 列出所有 active 學期讓使用者切換
-						if !viewModel.activeSemesters.isEmpty {
-							Picker("切換學期", selection: Binding(
-								get: { viewModel.currentSemesterId },
-								set: { newId in
-									if let id = newId {
-										viewModel.switchSemester(to: id)
-									}
-								}
-							)) {
-								ForEach(viewModel.activeSemesters) { sem in
-									Text(sem.name).tag(Optional(sem.id))
-								}
-							}
-						}
-						
-						// 建立新學期
-						NavigationLink {
-							NewSemesterView()
-								.environmentObject(viewModel)
-						} label: {
-							HStack {
-								Image(systemName: "plus.circle.fill")
-								Text("建立新學期")
-									.fontWeight(.semibold)
-							}
-							.frame(maxWidth: .infinity, alignment: .center)
-						}
-						.foregroundColor(.white)
-						.listRowBackground(
-							Color(red: 0/255, green: 75/255, blue: 151/255)
-						)
-					}
 					// 必要設定
-					Section(header: Text("開學日設定")) {
+					Section(header: Text("必要設定")) {
 						DatePicker(
 							"開學第一天",
 							selection: $viewModel.startDate,
 							displayedComponents: .date
-						).fontWeight(.semibold)
+						)
 						.tint(Color(red: 0/255, green: 75/255, blue: 151/255))
 					}
-					
+
 					// 貼上選課結果
 					Section(header: Text("貼上選課結果")) {
 						VStack(alignment: .leading, spacing: 12) {
@@ -90,7 +44,7 @@ struct InputSheetView: View {
 									showNeedSemesterAlert = true
 									return
 								}
-								
+
 								if let pasted = UIPasteboard.general.string {
 									inputText = pasted
 								} else {
@@ -104,8 +58,8 @@ struct InputSheetView: View {
 								}
 							}
 							.buttonStyle(.glassProminent)
-							.disabled(viewModel.currentSemesterId == nil)   // 按鈕視覺上變成不可用
-							
+							.disabled(viewModel.currentSemesterId == nil)
+
 							if viewModel.currentSemesterId == nil {
 								Text("請先選擇或建立一個學期，再貼上課程列表。")
 									.font(.footnote)
@@ -125,23 +79,35 @@ struct InputSheetView: View {
 								.cornerRadius(8)
 							}
 						}
+
+						// 這兩個放在「框框外面」，但同一個 Section 裡
+
+						// 前往臺大課程網
+						Button {
+							if let url = URL(string: "https://course.ntu.edu.tw/result/final/list") {
+								openURL(url)
+							}
+						} label: {
+							HStack {
+								Image(systemName: "safari")
+								Text("前往臺大課程網")
+								Spacer()
+							}
+						}
+
+						// 複製課表教學
 						NavigationLink {
-								CopyTutorialView()
+							CopyTutorialView()
 						} label: {
 							HStack {
 								Image(systemName: "questionmark.circle")
 								Text("查看複製課表教學")
-									.font(.subheadline)
-							}.frame(maxWidth:.infinity,alignment: .trailing)
+								Spacer()
+							}
 						}
 					}
-					.alert("請先選擇學期", isPresented: $showNeedSemesterAlert) {
-						Button("OK", role: .cancel) { }
-					} message: {
-						Text("請先在學期設定處選擇或建立一個學期，再匯入課程。")
-					}
-					
-					// 解析按鈕
+
+					// 解析按鈕照舊
 					Section {
 						Button {
 							startParse()
@@ -181,9 +147,14 @@ struct InputSheetView: View {
 				} message: {
 					Text("無法從貼上的文字中解析出任何課程，請確認內容是否為臺大課程網的課程列表。")
 				}
+				.alert("請先選擇學期", isPresented: $showNeedSemesterAlert) {
+					Button("OK", role: .cancel) { }
+				} message: {
+					Text("請先在「學期與通知」頁建立或選擇一個學期，再貼上課表內容。")
+				}
 			}
-			
-			// Confetti 動畫覆蓋
+
+			// confetti 覆蓋照舊
 			if showConfetti {
 				DotLottieAnimation(
 					fileName: "confetti",
@@ -197,6 +168,8 @@ struct InputSheetView: View {
 			}
 		}
 	}
+
+	// startParse() 與其它函式保持不變
 	
 	// MARK: - 解析流程
 	private func startParse() {
