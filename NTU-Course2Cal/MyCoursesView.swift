@@ -94,7 +94,7 @@ struct MyCoursesView: View {
 					.animation(.easeInOut(duration: 0.2), value: expandedGroupId)
 				}
 			}
-			.navigationTitle("我的課程")
+			.navigationTitle("nav_my_courses_title")
 			.toolbar {
 				Button(action: { showInputSheet = true }) {
 					Image(systemName: "plus")

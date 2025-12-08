@@ -928,10 +928,7 @@ class CourseViewModel: ObservableObject {
 			let end = getEndTime(for: course.periods.last ?? 1)
 			let content = UNMutableNotificationContent()
 			content.title = course.name
-			content.body = """
-			地點：\(course.location)
-			時間：\(start)~\(end)
-			"""
+			content.body = "\(course.location) | \(start)~\(end)"
 			content.sound = .default
 			
 			let comps = Calendar.current.dateComponents(
@@ -972,3 +969,31 @@ class CourseViewModel: ObservableObject {
 	
 }
 
+class AppLanguageManager {
+	static func reloadApp(viewModel: CourseViewModel,
+						  signInManager: GoogleSignInManager) {
+		
+		// 從 AppStorage / UserDefaults 拿目前選的語言
+		let langCode = UserDefaults.standard.string(forKey: "appLanguage") ?? "zh-Hant"
+		let locale = Locale(identifier: langCode)
+		
+		guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+			  let window = windowScene.windows.first else { return }
+		
+		let root = MainTabView()
+			.environmentObject(viewModel)
+			.environmentObject(signInManager)
+			.environment(\.locale, locale)   // 關鍵：把語言塞進 environment
+		
+		let hosting = UIHostingController(rootView: root)
+		
+		window.rootViewController = hosting
+		window.makeKeyAndVisible()
+		
+		UIView.transition(with: window,
+						  duration: 0.25,
+						  options: .transitionCrossDissolve,
+						  animations: nil,
+						  completion: nil)
+	}
+}

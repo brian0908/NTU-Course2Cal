@@ -11,11 +11,13 @@
 		0A17D2362EE476E8000444EE /* SwiftyGif in Frameworks */ = {isa = PBXBuildFile; productRef = 0A17D2352EE476E8000444EE /* SwiftyGif */; };
 		0A17D23B2EE476F6000444EE /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 0A17D23A2EE476F6000444EE /* GoogleSignIn */; };
 		0A17D23D2EE476F6000444EE /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 0A17D23C2EE476F6000444EE /* GoogleSignInSwift */; };
+		0A72A91F2EE6CC7900EF0C2D /* LanguageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A72A91E2EE6CC7900EF0C2D /* LanguageManager.swift */; };
 		0AC337412EE56AD100544888 /* Icon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 0AC337402EE56AD100544888 /* Icon.icon */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0A17D2092EE47609000444EE /* NTU-Course2Cal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "NTU-Course2Cal.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A72A91E2EE6CC7900EF0C2D /* LanguageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageManager.swift; sourceTree = "<group>"; };
 		0AC337402EE56AD100544888 /* Icon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = Icon.icon; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -58,6 +60,7 @@
 		0A17D2002EE47609000444EE = {
 			isa = PBXGroup;
 			children = (
+				0A72A91E2EE6CC7900EF0C2D /* LanguageManager.swift */,
 				0AC337402EE56AD100544888 /* Icon.icon */,
 				0A17D20B2EE47609000444EE /* NTU-Course2Cal */,
 				0A17D20A2EE47609000444EE /* Products */,
@@ -118,11 +121,12 @@
 				};
 			};
 			buildConfigurationList = 0A17D2042EE47609000444EE /* Build configuration list for PBXProject "NTU-Course2Cal" */;
-			developmentRegion = en;
+			developmentRegion = "zh-Hant";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hant",
 			);
 			mainGroup = 0A17D2002EE47609000444EE;
 			minimizedProjectReferenceProxies = 1;
@@ -157,6 +161,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A72A91F2EE6CC7900EF0C2D /* LanguageManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -223,6 +228,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -280,6 +286,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

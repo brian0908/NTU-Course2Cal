@@ -15,6 +15,7 @@ struct SettingsView: View {
 	@State private var showingResetAllConfirm = false
 	@EnvironmentObject var viewModel: CourseViewModel
 	@EnvironmentObject var signInManager: GoogleSignInManager
+	@AppStorage("appLanguage") var appLanguage: String = "zh-Hant"
 	@State private var showingClearConfirm = false
 	@State private var showingArchiveConfirm = false
 	@AppStorage("enableLocalNotifications") private var enableLocalNotifications: Bool = false
@@ -274,6 +275,21 @@ struct SettingsView: View {
 					.disabled(!enableLocalNotifications)
 					.fontWeight(.semibold)
 					.frame(maxWidth: .infinity, alignment: .center)
+					.foregroundColor(.ntuBlue)
+				}
+				
+				Section(header: Text("語言 | Language")) {
+					Picker("App Language", selection: $appLanguage) {
+						Text("中文").tag("zh-Hant")
+						Text("English").tag("en")
+					}
+					.pickerStyle(.segmented)
+					.onChange(of: appLanguage) { _, _ in
+						AppLanguageManager.reloadApp(
+							viewModel: viewModel,
+							signInManager: signInManager
+						)
+					}
 				}
 				
 				Section {
@@ -302,7 +318,7 @@ struct SettingsView: View {
 				
 			}
 			
-			.navigationTitle("設定")
+			.navigationTitle("nav_settings_title")
 		}
 	}
 }
@@ -318,3 +334,4 @@ func rootViewController() -> UIViewController {
 	}
 	return root
 }
+

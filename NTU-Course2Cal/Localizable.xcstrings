@@ -1,0 +1,1220 @@
+{
+  "sourceLanguage" : "zh-Hant",
+  "strings" : {
+    "" : {
+
+    },
+    " %lld 學分" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld units"
+          }
+        }
+      }
+    },
+    "- 若解析失敗，先檢查是否有從正確的「列表」頁面選取正確範圍。\n- 如果選課結果有更新，請再貼上一次最新的資料，重新解析。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "- If decoding fails, check if you have correctly copied the course information from the course list. \n- If class schedule has changed, please import again to update the information. "
+          }
+        }
+      }
+    },
+    "%lld 分鐘前" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld minutes before"
+          }
+        }
+      }
+    },
+    "AI 解析並匯入課程" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI Decode & Import"
+          }
+        }
+      }
+    },
+    "AI 解析中..." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI Decoding…"
+          }
+        }
+      }
+    },
+    "App Language" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Language"
+          }
+        }
+      }
+    },
+    "App 通知提前 %lld 分鐘提醒" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App notifies %lld before"
+          }
+        }
+      }
+    },
+    "App 通知提醒" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Notifications"
+          }
+        }
+      }
+    },
+    "English" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "English"
+          }
+        }
+      }
+    },
+    "Google 行事曆設定" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Calendar Settings"
+          }
+        }
+      }
+    },
+    "nav_history_courses_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archive"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "歷史課程"
+          }
+        }
+      }
+    },
+    "nav_my_courses_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My Classes"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我的課程"
+          }
+        }
+      }
+    },
+    "nav_settings_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定"
+          }
+        }
+      }
+    },
+    "nav_weekly_schedule_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My Schedule"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我的課表"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "Step 1: 建立新行事曆 (Optional)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Step 1: Create New Calendar (Optional)"
+          }
+        }
+      }
+    },
+    "Step 1: 打開新課程網" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Step 1: Go to NTU Course Website"
+          }
+        }
+      }
+    },
+    "Step 2: 選取文字並複製" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Step 2: Select and copy text"
+          }
+        }
+      }
+    },
+    "Step 2: 選擇匯入的行事曆" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Step 2: Select calendar to import"
+          }
+        }
+      }
+    },
+    "Step 3: 貼到 NTU Course2Cal" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Step 3: Paste to NTU Course2Cal"
+          }
+        }
+      }
+    },
+    "tab_history_courses" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archive"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "歷史課程"
+          }
+        }
+      }
+    },
+    "tab_my_courses" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My Courses"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我的課程"
+          }
+        }
+      }
+    },
+    "tab_settings" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定"
+          }
+        }
+      }
+    },
+    "tab_weekly_schedule" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schedule"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "課表檢視"
+          }
+        }
+      }
+    },
+    "上課前提醒時間" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notification before class: "
+          }
+        }
+      }
+    },
+    "上課時間" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Class Time"
+          }
+        }
+      }
+    },
+    "不提醒" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No notifications"
+          }
+        }
+      }
+    },
+    "中文" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中文"
+          }
+        }
+      }
+    },
+    "例如 114-1 課表" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. 2025 Fall"
+          }
+        }
+      }
+    },
+    "例如：114-1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. 2025 Fall"
+          }
+        }
+      }
+    },
+    "例如：114-1 課表" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. 2025 Fall"
+          }
+        }
+      }
+    },
+    "備註" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Additional info: "
+          }
+        }
+      }
+    },
+    "允許匯入到行事曆" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow Import to Calendar"
+          }
+        }
+      }
+    },
+    "先跳過，下次再設定" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip and set up later"
+          }
+        }
+      }
+    },
+    "切換學期" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Semester"
+          }
+        }
+      }
+    },
+    "刪除" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "前往匯入課程" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go to import classes"
+          }
+        }
+      }
+    },
+    "前往臺大課程網" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go to NTU Course Website"
+          }
+        }
+      }
+    },
+    "前往設定" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go to Settings"
+          }
+        }
+      }
+    },
+    "包含目前學期與歷史課程的所有資料都會被刪除，此動作無法復原。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All data will be deleted from the current semester and archive. This action cannot be reversed. "
+          }
+        }
+      }
+    },
+    "匯入課程" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import classes"
+          }
+        }
+      }
+    },
+    "匯入課表" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import class schedule"
+          }
+        }
+      }
+    },
+    "匯出" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export"
+          }
+        }
+      }
+    },
+    "匯出中..." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporting…"
+          }
+        }
+      }
+    },
+    "匯出到 Apple 行事曆" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export to Apple Calendar"
+          }
+        }
+      }
+    },
+    "匯出到 Google 行事曆" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export to Google Calendar"
+          }
+        }
+      }
+    },
+    "匯出目前勾選的課程" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export Selected Classes"
+          }
+        }
+      }
+    },
+    "匯出結果" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export Results"
+          }
+        }
+      }
+    },
+    "匯出至 Apple 行事曆" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export to Apple Calendar"
+          }
+        }
+      }
+    },
+    "匯出至 Google 行事曆" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export to Google Calendar"
+          }
+        }
+      }
+    },
+    "取消" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "回到 NTU Course2Cal app，在「我的課程」頁面點選「貼上課表」。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Return to NTU Course2Cal App, then select “Paste Class Schedule” on the My Classes page. "
+          }
+        }
+      }
+    },
+    "如何從臺大新課程網複製課表" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to copy your class info from the new NTU Course website"
+          }
+        }
+      }
+    },
+    "學期" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semester"
+          }
+        }
+      }
+    },
+    "學期名稱" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name of Semester"
+          }
+        }
+      }
+    },
+    "學期管理" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semester Management"
+          }
+        }
+      }
+    },
+    "將目前學期移至歷史課程" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move current semester to Archives"
+          }
+        }
+      }
+    },
+    "小提示" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tips"
+          }
+        }
+      }
+    },
+    "已登入" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logged In As: "
+          }
+        }
+      }
+    },
+    "建立中..." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Creating…"
+          }
+        }
+      }
+    },
+    "建立學期並切換" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create Semester and Select"
+          }
+        }
+      }
+    },
+    "建立新學期" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create New Semester"
+          }
+        }
+      }
+    },
+    "建立新行事曆" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create New Calendar"
+          }
+        }
+      }
+    },
+    "從剪貼簿貼上" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paste from clipboard"
+          }
+        }
+      }
+    },
+    "必要設定" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Required Settings"
+          }
+        }
+      }
+    },
+    "快匯入本學期的課程吧！" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import classes for this semester!"
+          }
+        }
+      }
+    },
+    "找不到任何 Google 行事曆" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cannot find any Google Calendars"
+          }
+        }
+      }
+    },
+    "找不到可寫入的 Apple 行事曆" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cannot find any Apple Calendars"
+          }
+        }
+      }
+    },
+    "提前 %lld 分鐘" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld minutes before"
+          }
+        }
+      }
+    },
+    "提前 %lld 分鐘通知" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notify %lld minutes before"
+          }
+        }
+      }
+    },
+    "啟用 App 通知" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable App Notifications"
+          }
+        }
+      }
+    },
+    "新學期" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Semester"
+          }
+        }
+      }
+    },
+    "日期" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date"
+          }
+        }
+      }
+    },
+    "日期設定" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date Settings"
+          }
+        }
+      }
+    },
+    "會用在匯出到行事曆的事件提醒。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Used for events exported to your calendar"
+          }
+        }
+      }
+    },
+    "本 App 需要您的同意，才能將選課結果自動匯入 iOS 行事曆。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We need your consent to import the class schedule to Apple Calendar"
+          }
+        }
+      }
+    },
+    "本學期開學第一天" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "First Day of the Semester"
+          }
+        }
+      }
+    },
+    "查看複製課表教學" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go to Tutorial"
+          }
+        }
+      }
+    },
+    "歡迎使用 NTU Course2Cal" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to NTU Course2Cal"
+          }
+        }
+      }
+    },
+    "此動作無法復原，且課程將不可再編輯。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This action cannot be reversed, and the class will be removed permanently. "
+          }
+        }
+      }
+    },
+    "此學期沒有課程資料" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No class info for this semester"
+          }
+        }
+      }
+    },
+    "清除" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "清除全部資料" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete all Info"
+          }
+        }
+      }
+    },
+    "無法從貼上的文字中解析出任何課程，請確認內容是否為臺大課程網的課程列表。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The system cannot decode any classes from the text. Please check if you have provided the correct information. "
+          }
+        }
+      }
+    },
+    "登入後，進入右上角「選課結果」，並且確定出現「列表」畫面。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After logging in, select the Final Result List from the top right, and ensure you have selected the List view. (Currently only supports Chinese class info)"
+          }
+        }
+      }
+    },
+    "登出 Google" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log Out"
+          }
+        }
+      }
+    },
+    "目前學期：%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current Semester: %@"
+          }
+        }
+      }
+    },
+    "目前尚未建立學期" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Semesters Created"
+          }
+        }
+      }
+    },
+    "目前沒有內容，請先到臺大課程網複製課程列表，再按上方按鈕貼上。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No info imported, please go to the NTU Course Website to copy class information, then paste using the button above. "
+          }
+        }
+      }
+    },
+    "目前沒有歷史課程" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Classes Archived"
+          }
+        }
+      }
+    },
+    "確定要將本學期移至歷史課程嗎？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to archive the current semester? "
+          }
+        }
+      }
+    },
+    "確定要清除全部資料嗎？" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to clear all info?"
+          }
+        }
+      }
+    },
+    "移至歷史課程" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move to Archive"
+          }
+        }
+      }
+    },
+    "行事曆" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendar"
+          }
+        }
+      }
+    },
+    "行事曆提醒時間" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendar Notification Time"
+          }
+        }
+      }
+    },
+    "行事曆通知" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendar Notifications"
+          }
+        }
+      }
+    },
+    "複製課程資訊教學" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Class Info Selection Tutorial"
+          }
+        }
+      }
+    },
+    "解析失敗" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI Decode Failed"
+          }
+        }
+      }
+    },
+    "語言 | Language" : {
+
+    },
+    "課程資訊" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Class Info"
+          }
+        }
+      }
+    },
+    "調整提醒時間" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adjust Notification Settings"
+          }
+        }
+      }
+    },
+    "請依照下面的示範 GIF 以及步驟，將課表複製貼上到 NTU Course2Cal。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please follow the following instructions to paste your class info to NTU Course2Cal. "
+          }
+        }
+      }
+    },
+    "請先在「學期與通知」頁建立或選擇一個學期，再貼上課表內容。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please create or select a semester from Settings, then paste your class info. "
+          }
+        }
+      }
+    },
+    "請先選擇學期" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please Select a Semester"
+          }
+        }
+      }
+    },
+    "請先選擇或建立一個學期，再貼上課程列表。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please create or select a semester first, then paste your class info. "
+          }
+        }
+      }
+    },
+    "請設定本學期第一週的「星期一」日期。\nApp 會根據此日期自動推算所有課程的實際上課日。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please select the first Monday of this semester. The app will automatically predict all class events based on this date. "
+          }
+        }
+      }
+    },
+    "讀取 Apple 行事曆中..." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connecting to Apple Calendar…"
+          }
+        }
+      }
+    },
+    "讀取 Google 行事曆中..." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connecting to Google Calendar…"
+          }
+        }
+      }
+    },
+    "貼上選課結果" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paste Class Info"
+          }
+        }
+      }
+    },
+    "載入我的日曆" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Load my Calendar"
+          }
+        }
+      }
+    },
+    "這裡只影響匯出到 Apple 行事曆事件的提醒時間。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only affects the notifications of exported calendars. "
+          }
+        }
+      }
+    },
+    "重新排程本學期所有 App 通知" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reschedule All Notifications"
+          }
+        }
+      }
+    },
+    "重新登入" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in Again"
+          }
+        }
+      }
+    },
+    "長按「選課結果」標題字樣往下複製，一路拖曳至頁面底部「沒有未選上的課程」結束，點選「複製」。" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Press and hold the “Enrollment Results” title, drag downward all the way to the bottom of the page until “No Unselected Courses” appears, then tap “Copy”."
+          }
+        }
+      }
+    },
+    "開學第一天" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "First Day of Semester"
+          }
+        }
+      }
+    },
+    "關閉" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        }
+      }
+    },
+    "預設匯入日曆" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default Export Calendar"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}

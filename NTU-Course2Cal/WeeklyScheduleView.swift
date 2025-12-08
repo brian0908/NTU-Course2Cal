@@ -133,7 +133,7 @@ struct WeeklyScheduleView: View {
 					.padding()
 				}
 			}
-			.navigationTitle("我的課表")
+			.navigationTitle("nav_weekly_schedule_title")
 			
 			.alert("匯出結果", isPresented: $showAlert) {
 				if alertMessage.contains("沒有任何課程可以匯出") {

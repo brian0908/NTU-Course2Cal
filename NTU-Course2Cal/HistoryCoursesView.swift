@@ -142,7 +142,7 @@ struct HistoryCoursesView: View {
 					}
 				}
 			}
-			.navigationTitle("歷史課程")
+			.navigationTitle("nav_history_courses_title")
 		}
 	}
 }

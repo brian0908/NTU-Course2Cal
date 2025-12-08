@@ -13,6 +13,7 @@ struct NTU_Course2CalApp: App {
 	@AppStorage("hasCompletedPermissionFlow") private var hasCompletedPermissionFlow = false
 	@StateObject var viewModel = CourseViewModel()
 	@StateObject var signInManager = GoogleSignInManager()
+	@AppStorage("appLanguage") var appLanguage: String = "zh-Hant"
 
 	var body: some Scene {
 		WindowGroup {
@@ -25,6 +26,7 @@ struct NTU_Course2CalApp: App {
 			}
 			.environmentObject(viewModel)
 			.environmentObject(signInManager)
+			.environment(\.locale, Locale(identifier: appLanguage))
 		}
 	}
 }
@@ -33,20 +35,22 @@ struct MainTabView: View {
 		TabView {
 			MyCoursesView()
 				.tabItem {
-					Label("我的課程", systemImage: "books.vertical")
+					Label("tab_my_courses", systemImage: "books.vertical")
 				}
 			
 			WeeklyScheduleView()
 				.tabItem {
-					Label("課表檢視", systemImage: "calendar")
+					Label("tab_weekly_schedule", systemImage: "calendar")
 				}
+			
 			HistoryCoursesView()
-							.tabItem {
-								Label("歷史課程", systemImage: "clock.arrow.circlepath")
-							}
+				.tabItem {
+					Label("tab_history_courses", systemImage: "clock.arrow.circlepath")
+				}
+			
 			SettingsView()
 				.tabItem {
-					Label("設定", systemImage: "gearshape")
+					Label("tab_settings", systemImage: "gearshape")
 				}
 		}
 		.tint(.ntuBlue)
