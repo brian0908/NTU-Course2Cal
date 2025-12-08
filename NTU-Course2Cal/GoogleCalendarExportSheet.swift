@@ -14,7 +14,7 @@ struct GoogleCalendarExportSheet: View {
 	@EnvironmentObject var signInManager: GoogleSignInManager
 	
 	@State private var calendars: [GoogleCalendarInfo] = []
-	@State private var selectedCalendarId: String = ""
+	@State private var selectedCalendarId: String = "primary"
 	
 	@State private var newCalendarName: String = ""
 	@State private var isLoading = false
@@ -112,9 +112,21 @@ struct GoogleCalendarExportSheet: View {
 				await loadCalendars()
 			}
 			.alert("匯出結果", isPresented: $showAlert) {
-				Button("OK") {
-					if alertMessage.contains("成功") {
+				if alertMessage.contains("登入") || alertMessage.contains("行事曆失敗") {
+					// 登入相關錯誤, 要求重新登入
+					Button("重新登入") {
+						signInManager.signOut()
 						dismiss()
+					}
+					Button("取消", role: .cancel) {
+						dismiss()
+					}
+				} else {
+					Button("OK") {
+						// 匯出成功的情況直接關閉
+						if alertMessage.contains("已匯出") {
+							dismiss()
+						}
 					}
 				}
 			} message: {
@@ -125,30 +137,33 @@ struct GoogleCalendarExportSheet: View {
 	
 	// MARK: - 載入 Google 行事曆列表
 	private func loadCalendars() async {
-		// 如果沒登入 Google 直接跳錯
+		await MainActor.run { isLoading = true }
+		
+		// 如果一開始就沒有 user，直接噴錯並請他重登
 		guard signInManager.user != nil else {
-			alertMessage = "請先在設定頁登入 Google 帳號"
-			showAlert = true
+			await MainActor.run {
+				isLoading = false
+				alertMessage = "建立行事曆失敗，請確認已登入，再重新登入一次 Google 帳號。"
+				showAlert = true
+			}
 			return
 		}
 		
-		isLoading = true
 		let list = await viewModel.fetchGoogleCalendars(using: signInManager)
 		
 		await MainActor.run {
-			self.calendars = list
-			if let primary = list.first(where: { $0.primary == true }) {
-				self.selectedCalendarId = primary.id
-			} else {
-				self.selectedCalendarId = list.first?.id ?? ""
-			}
-			
 			if list.isEmpty {
-				self.alertMessage = "找不到任何 Google 行事曆"
-				self.showAlert = true
+				alertMessage = "建立行事曆失敗，請確認已登入，再重新登入一次 Google 帳號。"
+				showAlert = true
+			} else {
+				self.calendars = list
+				if let primary = list.first(where: { $0.primary == true }) {
+					self.selectedCalendarId = primary.id
+				} else {
+					self.selectedCalendarId = list.first?.id ?? "primary"
+				}
 			}
-			
-			self.isLoading = false
+			isLoading = false
 		}
 	}
 	

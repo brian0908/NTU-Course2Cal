@@ -8,6 +8,7 @@
 
 import SwiftUI
 import EventKit
+import DotLottie
 
 struct AppleCalendarExportSheet: View {
 	@Environment(\.dismiss) var dismiss
@@ -23,6 +24,7 @@ struct AppleCalendarExportSheet: View {
 	
 	@State private var alertMessage = ""
 	@State private var showAlert = false
+	@State private var showConfetti = false
 	
 	var body: some View {
 		NavigationStack {
@@ -120,6 +122,17 @@ struct AppleCalendarExportSheet: View {
 				Text(alertMessage)
 			}
 		}
+		if showConfetti {
+			DotLottieAnimation(
+				fileName: "confetti",
+				config: AnimationConfig(autoplay: true, speed: 1.5)
+			)
+			.view()
+			.ignoresSafeArea()
+			.allowsHitTesting(false)
+			.transition(.opacity)
+			.zIndex(10)
+		}
 	}
 	
 	// MARK: - 載入行事曆
@@ -167,7 +180,9 @@ struct AppleCalendarExportSheet: View {
 			showAlert = true
 			return
 		}
-		
+		await MainActor.run {
+			isExporting = true
+		}
 		// 設定目標行事曆
 		viewModel.setAppleTargetCalendar(id: selectedCalendarId)
 		isExporting = true

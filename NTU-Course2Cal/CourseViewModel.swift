@@ -27,6 +27,15 @@ struct GoogleCalendarEvent: Encodable {
 		let dateTime: String
 		let timeZone: String
 	}
+	struct Reminder: Encodable {
+			let method: String
+			let minutes: Int
+		}
+		
+	struct Reminders: Encodable {
+		let useDefault: Bool
+		let overrides: [Reminder]
+	}
 	
 	let summary: String
 	let location: String?
@@ -34,6 +43,8 @@ struct GoogleCalendarEvent: Encodable {
 	let start: DateTime
 	let end: DateTime
 	let recurrence: [String]?
+	let reminders: Reminders?
+	
 }
 
 struct GoogleCalendarInfo: Identifiable, Decodable {
@@ -366,39 +377,36 @@ class CourseViewModel: ObservableObject {
 	}
 	
 	private func createEvent(for course: Course) {
-			guard let firstClassDate = calculateDate(weekday: course.weekday, periods: course.periods) else { return }
-			
-			let event = EKEvent(eventStore: eventStore)
-			event.title = course.name
-			event.location = course.location
-			event.notes = "授課老師：\(course.teacher)"
-			event.startDate = firstClassDate
-			event.endDate = firstClassDate.addingTimeInterval(TimeInterval(50 * 60 * course.periods.count))
-			
-			// 優先用使用者選擇的行事曆
-			if let target = eventStore.calendar(withIdentifier: appleTargetCalendarId) {
-				event.calendar = target
-			} else {
-				event.calendar = eventStore.defaultCalendarForNewEvents
-			}
-			
-			if notifyMinutesBeforeCalendar > 0 {
-				event.addAlarm(EKAlarm(relativeOffset: TimeInterval(-notifyMinutesBeforeCalendar * 60)))
-			}
-			
-			let rule = EKRecurrenceRule(
-				recurrenceWith: .weekly,
-				interval: 1,
-				end: EKRecurrenceEnd(occurrenceCount: 16)
-			)
-			event.addRecurrenceRule(rule)
-			
-			do {
-				try eventStore.save(event, span: .thisEvent)
-			} catch {
-				print("Save failed: \(error)")
-			}
+		guard
+			let startDate = calculateDate(weekday: course.weekday, periods: course.periods),
+			let endDate = calculateEndDate(weekday: course.weekday, periods: course.periods)
+		else { return }
+		
+		let event = EKEvent(eventStore: eventStore)
+		event.title = course.name
+		event.location = course.location
+		event.notes = "授課老師：\(course.teacher)"
+		event.startDate = startDate
+		event.endDate = endDate
+		event.calendar = eventStore.defaultCalendarForNewEvents
+		
+		if notifyMinutesBeforeLocal > 0 {
+			event.addAlarm(EKAlarm(relativeOffset: TimeInterval(-notifyMinutesBeforeLocal * 60)))
 		}
+		
+		let rule = EKRecurrenceRule(
+			recurrenceWith: .weekly,
+			interval: 1,
+			end: EKRecurrenceEnd(occurrenceCount: 16)
+		)
+		event.addRecurrenceRule(rule)
+		
+		do {
+			try eventStore.save(event, span: .thisEvent)
+		} catch {
+			print("Save failed: \(error)")
+		}
+	}
 		
 		// 請求 Apple 行事曆權限
 		func requestAppleCalendarAccess(completion: @escaping (Bool, String) -> Void) {
@@ -525,6 +533,32 @@ class CourseViewModel: ObservableObject {
 		return formatter.string(from: date)
 	}
 	
+	private func calculateEndDate(weekday: Int, periods: [Int]) -> Date? {
+		let calendar = Calendar.current
+		let startWeekday = calendar.component(.weekday, from: startDate)
+		var dayDiff = weekday - startWeekday
+		if dayDiff < 0 { dayDiff += 7 }
+		
+		// 找到這週對應星期幾的那一天
+		guard let targetDate = calendar.date(byAdding: .day, value: dayDiff, to: startDate) else { return nil }
+		
+		// 用最後一節來決定結束時間
+		let lastPeriod = periods.last ?? 1
+		let endTimeString = getEndTime(for: lastPeriod)   // 你提供的那個表
+		
+		let formatter = DateFormatter()
+		formatter.dateFormat = "yyyy-MM-dd HH:mm"
+		
+		_ = DateFormatter.localizedString(from: targetDate, dateStyle: .short, timeStyle: .none)
+		
+		let dateOnlyFormatter = DateFormatter()
+		dateOnlyFormatter.dateFormat = "yyyy-MM-dd"
+		let datePart = dateOnlyFormatter.string(from: targetDate)
+		
+		let fullString = "\(datePart) \(endTimeString)"
+		return formatter.date(from: fullString)
+	}
+	
 	// MARK: - 匯出到 Google Calendar
 	
 	func exportToGoogleCalendar(using signInManager: GoogleSignInManager) async -> (Bool, String) {
@@ -553,13 +587,13 @@ class CourseViewModel: ObservableObject {
 		var failCount = 0
 		
 		for course in selectedCourses {
-			guard let startDate = calculateDate(weekday: course.weekday, periods: course.periods) else {
+			guard
+				let startDate = calculateDate(weekday: course.weekday, periods: course.periods),
+				let endDate = calculateEndDate(weekday: course.weekday, periods: course.periods)
+			else {
 				failCount += 1
 				continue
 			}
-			
-			let duration = TimeInterval(50 * 60 * course.periods.count)
-			let endDate = startDate.addingTimeInterval(duration)
 			
 			let descLines: [String] = [
 				"授課老師：\(course.teacher)",
@@ -572,15 +606,15 @@ class CourseViewModel: ObservableObject {
 				summary: course.name,
 				location: course.location.isEmpty ? nil : course.location,
 				description: description.isEmpty ? nil : description,
-				start: .init(
-					dateTime: rfc3339String(from: startDate),
-					timeZone: timeZoneId
-				),
-				end: .init(
-					dateTime: rfc3339String(from: endDate),
-					timeZone: timeZoneId
-				),
-				recurrence: ["RRULE:FREQ=WEEKLY;COUNT=16"]
+				start: .init(dateTime: rfc3339String(from: startDate), timeZone: timeZoneId),
+				end: .init(dateTime: rfc3339String(from: endDate), timeZone: timeZoneId),
+				recurrence: ["RRULE:FREQ=WEEKLY;COUNT=16"],
+				reminders: .init(
+					useDefault: false,
+					overrides: [
+						.init(method: "popup", minutes: notifyMinutesBeforeCalendar)
+					]
+				)
 			)
 			
 			do {
@@ -670,8 +704,23 @@ class CourseViewModel: ObservableObject {
 	// MARK: - Google Calendar 進階功能
 	
 	func fetchGoogleCalendars(using manager: GoogleSignInManager) async -> [GoogleCalendarInfo] {
-		guard let token = manager.accessToken else {
-			print("No Google access token")
+		guard let user = manager.user else {
+			print("No signed in user")
+			return []
+		}
+		
+		// 嘗試刷新 token
+		var token: String?
+
+		do {
+			let auth = try await user.refreshTokensIfNeeded()
+			token = auth.accessToken.tokenString
+		} catch {
+			print("refreshTokensIfNeeded error:", error)
+		}
+		
+		guard let token, !token.isEmpty else {
+			print("No valid access token")
 			return []
 		}
 		
@@ -686,18 +735,17 @@ class CourseViewModel: ObservableObject {
 		do {
 			let (data, response) = try await URLSession.shared.data(for: request)
 			guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-				print("CalendarList status not 200")
+				print("CalendarList status:", (response as? HTTPURLResponse)?.statusCode ?? -1)
 				return []
 			}
 			
 			struct CalendarListResponse: Decodable {
 				let items: [GoogleCalendarInfo]
 			}
-			
 			let decoded = try JSONDecoder().decode(CalendarListResponse.self, from: data)
 			return decoded.items
 		} catch {
-			print("fetchGoogleCalendars error: \(error)")
+			print("fetchGoogleCalendars error:", error)
 			return []
 		}
 	}
@@ -759,14 +807,14 @@ class CourseViewModel: ObservableObject {
 		formatter.timeZone = TimeZone(identifier: "Asia/Taipei")
 		
 		for course in targets {
-			guard let firstDate = calculateDate(weekday: course.weekday, periods: course.periods) else {
+			guard
+				let startDate = calculateDate(weekday: course.weekday, periods: course.periods),
+				let endDate = calculateEndDate(weekday: course.weekday, periods: course.periods)
+			else {
 				continue
 			}
-			
-			let duration = TimeInterval(50 * 60 * course.periods.count)
-			let endDate = firstDate.addingTimeInterval(duration)
-			
-			let startString = formatter.string(from: firstDate)
+
+			let startString = formatter.string(from: startDate)
 			let endString = formatter.string(from: endDate)
 			
 			var recurrence: [String] = []
@@ -917,5 +965,6 @@ class CourseViewModel: ObservableObject {
 		
 		// semesterStartDate = Date().timeIntervalSince1970
 	}
+	
 }
 
