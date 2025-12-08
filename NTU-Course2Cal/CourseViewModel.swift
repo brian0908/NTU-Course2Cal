@@ -924,10 +924,14 @@ class CourseViewModel: ObservableObject {
 				TimeInterval(-notifyMinutesBeforeLocal * 60)
 			)
 			if fireDate < Date() { continue }  // 過去的時間不用排
-			
+			let start = getStartTime(for: course.periods.first ?? 1)
+			let end = getEndTime(for: course.periods.last ?? 1)
 			let content = UNMutableNotificationContent()
 			content.title = course.name
-			content.body = "即將上課：\(course.rawTime) \(course.location)"
+			content.body = """
+			地點：\(course.location)
+			時間：\(start)~\(end)
+			"""
 			content.sound = .default
 			
 			let comps = Calendar.current.dateComponents(
